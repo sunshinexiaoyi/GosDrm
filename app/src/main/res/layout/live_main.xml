@@ -20,13 +20,13 @@
         <View
             android:layout_width="0dp"
             android:layout_weight="5.7"
-            android:layout_height="52dp"
+            android:layout_height="50dp"
             android:visibility="invisible"/>
         <!--搜索框-->
         <SearchView
             android:id="@+id/live_search"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="50dp"
             android:layout_weight="5"
             android:background="@drawable/live_search_bg" />
         <!--时间-->
@@ -35,7 +35,7 @@
             android:format24Hour="@string/formatTime"
             android:textColor="@color/white"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="50dp"
             android:layout_weight="3.2"
             android:gravity="right|center_vertical"
             android:textSize="@dimen/live_timeText" />
@@ -43,7 +43,7 @@
         <LinearLayout
             android:layout_weight="2"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="50dp"
             android:orientation="vertical">
             <TextClock
                 android:id="@+id/live_week"
@@ -51,7 +51,7 @@
                 android:textSize="@dimen/live_weekText"
                 android:format24Hour="@string/formatWeek"
                 android:layout_width = "match_parent"
-                android:layout_height="26dp"
+                android:layout_height="25dp"
                 android:gravity = "left|center_vertical|bottom"
                 android:paddingLeft="4dp"/>
             <TextClock
@@ -60,24 +60,24 @@
                 android:textSize="@dimen/live_dateText"
                 android:format24Hour="@string/formatDate"
                 android:layout_width = "match_parent"
-                android:layout_height="26dp"
+                android:layout_height="25dp"
                 android:gravity = "left|center|top"
                 android:paddingLeft="4dp"/>
         </LinearLayout>
 
         <!--WLAN图标-->
         <ImageView
-            android:id="@+id/imageView"
-            android:src="@drawable/live_wlan"
+            android:id="@+id/live_wlan"
+            android:src="@drawable/live_wlan_disconnect"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="50dp"
             android:layout_weight="0.5" />
     </LinearLayout>
 
     <!--第二行-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_weight="1.6"
+        android:layout_weight="1.7"
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:baselineAligned="false"
@@ -122,7 +122,7 @@
             android:visibility="invisible"/>
         <!--节目列表-->
         <ListView
-            android:id = "@+id/live_proglist"
+            android:id = "@+id/live_list_prog"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight = "1"
