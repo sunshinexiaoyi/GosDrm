@@ -1,5 +1,7 @@
 package gos.gosdrm.activity;
 import gos.gosdrm.R;
+import gos.gosdrm.fragment.LiveFragment;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;

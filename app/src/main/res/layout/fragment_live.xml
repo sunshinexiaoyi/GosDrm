@@ -28,7 +28,8 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="5"
-            android:background="@drawable/live_search_bg" />
+            android:background="@drawable/live_search_bg"
+            />
         <!--时间-->
         <TextClock
             android:id="@+id/live_time"
@@ -122,11 +123,13 @@
             android:visibility="invisible"/>
         <!--节目列表-->
         <ListView
-            android:id = "@+id/live_list_prog"
+            android:id = "@+id/listViewChannel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight = "1"
-            android:background="@drawable/live_list_prog_bg">
+            android:background="@drawable/live_list_prog_bg"
+            android:listSelector="@drawable/live_channel"
+            >
         </ListView>
     </LinearLayout>
 </LinearLayout>
