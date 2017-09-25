@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="live_timeText">36sp</dimen>
+    <dimen name="live_dateText">12sp</dimen>
+    <dimen name="live_weekText">12sp</dimen>
+    <dimen name="live_itemText">14sp</dimen>
+    <dimen name="live_epg_progNameText">22sp</dimen>
+    <dimen name="live_epg_proginfoText">12sp</dimen>
+
+</resources>
