@@ -1,6 +1,6 @@
 package gos.gosdrm.fragment;
 import gos.gosdrm.R;
-import gos.gosdrm.adapter.ReuseAdapter;
+import gos.gosdrm.adapter.ChannelAdapter;
 import gos.gosdrm.data.Channel;
 import gos.gosdrm.data.PageInfo;
 import gos.gosdrm.data.Return;
@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,46 +33,49 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class LiveFragment extends Fragment implements View.OnFocusChangeListener{
+public class LiveFragment extends Fragment{
     private WlanReceiver wlanReceiver;//监听WLAN状态
     private View view;
 
-    private final String TAG = getClass().getSimpleName();
-    String url = "http://192.168.1.84:8090/ottserver/IPLiveInfo/getAllChannel?clientId=boss00042&pageSize=20&pageNumber=1";
-    HttpUtils httpUtils = HttpUtils.getInstance();
+    private String TAG = getClass().getSimpleName();
+    private String url = "http://192.168.1.84:8090/ottserver/IPLiveInfo/getAllChannel?clientId=boss00042&pageSize=20&pageNumber=1";
+    private HttpUtils httpUtils = HttpUtils.getInstance();
 
-    ListView channelListView;   //频道listView
-    ReuseAdapter<Channel> channelAdapter; //频道适配器
+    private ChannelAdapter<Channel> channelAdapter;
+    private ListView channelListView;   //频道listView
+
+    private ArrayList<Channel> channels;//频道列表
+    private boolean isGetChannel = false;
+    private Handler handler;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.e("live的消息", "进入onCreate()方法");
+        Log.e("live的消息", "进入onCreateView()方法");
         view = inflater.inflate(R.layout.fragment_live,container, false);
 
         wlanReceiver = new WlanReceiver();
         IntentFilter itf = new IntentFilter();
         itf.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);//无线状态
         getActivity().registerReceiver(wlanReceiver, itf);//注册广播
+        handler = new Handler();
 
-        setTime(view, inflater, container);//初始化时间
-
-        //initList();//初始化适配器
-
-        initView();
-        initData();
-
-        //设置焦点监听
-        //获取节目列表
-        //获取节目epg
-        //播放指定节目
-        //搜索框的改良
+        setTime(view);//初始化时间
+        initChannelView();//初始化频道列表
+        new Thread() {
+            public void run() {
+                while (!getAllChannel()) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException sleepError) {}
+                }
+                Thread.interrupted();
+                Log.e("消息", "获取频道列表的线程死亡");
+            }
+        }.start();
         return view;
     }
 
-    //监听焦点改变检测
-    @Override
-    public void onFocusChange(View view, boolean bl) {}
     @Override
     public void onDetach() {
         super.onDetach();
@@ -79,7 +83,7 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
     }
 
     //设置时间日期
-    public void setTime(View view, LayoutInflater inflater, ViewGroup container) {
+    public void setTime(View view) {
         boolean is24Hours = DateFormat.is24HourFormat(getActivity());
         if (!is24Hours) {
             TextClock time = (TextClock) view.findViewById(R.id.live_time);
@@ -125,57 +129,47 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
         }
     }
 
-    private void initView(){
-        initChannelView();
-    }
-
-    private void initData() {
-        getAllChannel();
-    }
-
-
+    //初始化频道列表
     private void initChannelView() {
-        channelListView = view.findViewById(R.id.listViewChannel);
-        channelAdapter = new ReuseAdapter<Channel>(R.layout.item_channel) {
+        channelListView = view.findViewById(R.id.live_channelList);
+        channelAdapter = new ChannelAdapter<Channel>(getActivity(), R.layout.item_channel) {
             @Override
-            public void bindView(ViewHolder holder, Channel obj) {
-                TextView channelName = holder.getView(R.id.channelName);
-                channelName.setText(obj.getChannelName());
+            public void bindView(Holder holder, Channel obj) {
+                holder.setText(R.id.live_channelName, obj.getChannelName());
             }
         };
         channelListView.setAdapter(channelAdapter);
+        
+        //频道列表被选中事件
         channelListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Channel channel = channelAdapter.getItem(i);
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
                 //播放预览
+                //Channel channel = channelAdapter.getItem(i);
                 //startPlay(formatUrl(channel));
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
+            public void onNothingSelected(AdapterView<?> adapterView) {}
         });
-
+        //频道列表被点击事件
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            boolean foldThis;
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Channel channel = channelAdapter.getItem(i);
-                startPlay(formatUrl(channel));
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                startPlayer(formatUrl(channelAdapter.getItem(pos)));
             }
         });
-
     }
-
+    //url格式转换
     private String formatUrl(Channel channel){
         String urlFormat = "http://192.168.1.84:1935/live/_definst_/stream/%s.stream/playlist.m3u8";
         String url = (String.format(urlFormat,channel.getChannelName())).replaceAll(" ","");
-        Log.i(TAG,"url:"+url);
+        Log.e(TAG,"得到URL:"+url);
         return url;
     }
-
-    private void startPlay(String url){
+    //启动播放器
+    private void startPlayer(String url){
+        Log.e("消息", "启动播放器");
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         String type = "video/*";
@@ -183,32 +177,34 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
         intent.setDataAndType(uri, type);
         startActivity(intent);
     }
-
-    /**
-     * 获取所有频道
-     */
-    private void getAllChannel(){
+    //获取所有频道
+    private boolean getAllChannel(){
         httpUtils.get(url,new HttpUtils.Back<Return<PageInfo<Channel>>>(){
             @Override
             public void success( Return<PageInfo<Channel>> ret) {
-                ArrayList<Channel> channels = ret.getBody().getItems();
-                resetChannelListView(channels);
+                channels = ret.getBody().getItems();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        resetChannelListView(channels);
+                    }
+                });
+                isGetChannel = true;
             }
             @Override
             public void failed(Request request, IOException e) {
+                Log.e(TAG, "获取频道列表失败");
                 e.printStackTrace();
-                Log.i(TAG, "IOException：");
+                isGetChannel = false;
             }
         });
+        return isGetChannel;
     }
 
-
-    /**
-     * 重置频道列表数据
-     * @param channels
-     */
+    //重置频道列表数据
     private void resetChannelListView(ArrayList<Channel> channels){
-        channelAdapter.reset(channels);
+        Log.e(TAG, "频道列表的长度：" + channels.size());
+        channelAdapter.addAll(channels);
         channelListView.requestFocus();
     }
 }
