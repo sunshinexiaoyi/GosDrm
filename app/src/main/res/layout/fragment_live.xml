@@ -93,8 +93,8 @@
             android:orientation = "vertical"
             android:layout_weight="1.2">
             <!--播放器空间-->
-            <View
-                android:id = "@+id/live_player"
+            <VideoView
+                android:id = "@+id/videoView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

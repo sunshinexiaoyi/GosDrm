@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,20 +29,26 @@ import android.text.format.DateFormat;
 import android.content.BroadcastReceiver;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import static  gos.gosdrm.define.PlayerUrl.*;
 
 public class LiveFragment extends Fragment implements View.OnFocusChangeListener{
     private WlanReceiver wlanReceiver;//监听WLAN状态
     private View view;
 
     private final String TAG = getClass().getSimpleName();
-    String url = "http://192.168.1.84:8090/ottserver/IPLiveInfo/getAllChannel?clientId=boss00042&pageSize=20&pageNumber=1";
+
     HttpUtils httpUtils = HttpUtils.getInstance();
 
     ListView channelListView;   //频道listView
     ReuseAdapter<Channel> channelAdapter; //频道适配器
+
+    public VideoView mVideoView;
+
+    private boolean mediaIsPause = false;//播放器是否被暂停
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,7 +63,6 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
 
         setTime(view, inflater, container);//初始化时间
 
-        //initList();//初始化适配器
 
         initView();
         initData();
@@ -69,9 +75,30 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mediaIsPause){
+            Log.i(TAG,"onResume --开始播放器");
+            mVideoView.start();
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(mVideoView.isPlaying()){
+            mVideoView.pause();
+            mediaIsPause = true;
+            Log.i(TAG,"onPause --暂停播放器");
+        }
+    }
+
     //监听焦点改变检测
     @Override
     public void onFocusChange(View view, boolean bl) {}
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -91,6 +118,7 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
             Log.e("调整时间日期消息", "已经修正时间格式为12小时制");
         }
     }
+
     //设置无线检测
     public class WlanReceiver extends BroadcastReceiver {
         private NetworkInfo networkInfo;
@@ -127,13 +155,27 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
 
     private void initView(){
         initChannelView();
+        initVideoView();
     }
 
     private void initData() {
         getAllChannel();
     }
 
+    /**
+     * 初始化播放器
+     */
+    private void initVideoView() {
+        mVideoView =  view.findViewById(R.id.videoView);
+        /*mVideoView.setOnPreparedListener(this);
+        mVideoView.setOnCompletionListener(this);
+        mVideoView.setOnErrorListener(this);
+        mVideoView.setOnInfoListener(this);*/
+    }
 
+    /**
+     * 初始化频道列表
+     */
     private void initChannelView() {
         channelListView = view.findViewById(R.id.listViewChannel);
         channelAdapter = new ReuseAdapter<Channel>(R.layout.item_channel) {
@@ -144,12 +186,16 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
             }
         };
         channelListView.setAdapter(channelAdapter);
+        //选择 预览播放
         channelListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Channel channel = channelAdapter.getItem(i);
-                //播放预览
-                //startPlay(formatUrl(channel));
+                if(mpdUrl.length>i){
+                    startPreviewPlay(mpdUrl[i]);
+                }else {
+                    startPreviewPlay(formatUrl(channel));
+                }
             }
 
             @Override
@@ -158,11 +204,17 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
             }
         });
 
+        //点击 全屏播放
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Channel channel = channelAdapter.getItem(i);
-                startPlay(formatUrl(channel));
+                if(mpdUrl.length>i){
+                    startFullPlay(mpdUrl[i]);
+                }else {
+                    startFullPlay(formatUrl(channel));
+                }
+                //startFullPlay(formatUrl(channel));
             }
         });
 
@@ -171,11 +223,15 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
     private String formatUrl(Channel channel){
         String urlFormat = "http://192.168.1.84:1935/live/_definst_/stream/%s.stream/playlist.m3u8";
         String url = (String.format(urlFormat,channel.getChannelName())).replaceAll(" ","");
-        Log.i(TAG,"url:"+url);
         return url;
     }
 
-    private void startPlay(String url){
+    /**
+     * 全屏播放
+     * @param url
+     */
+    private void startFullPlay(String url){
+        Log.i(TAG,"播放地址:"+url);
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         String type = "video/*";
@@ -185,10 +241,23 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
     }
 
     /**
+     * 小窗口预览播放
+     * @param url
+     */
+    private void startPreviewPlay(String url){
+        if(mVideoView.isPlaying()){
+            mVideoView.stopPlayback();
+        }
+        Log.i(TAG,"播放地址:"+url);
+        mVideoView.setVideoPath(url);
+        mVideoView.start();
+    }
+
+    /**
      * 获取所有频道
      */
     private void getAllChannel(){
-        httpUtils.get(url,new HttpUtils.Back<Return<PageInfo<Channel>>>(){
+        httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>(){
             @Override
             public void success( Return<PageInfo<Channel>> ret) {
                 ArrayList<Channel> channels = ret.getBody().getItems();
@@ -201,7 +270,6 @@ public class LiveFragment extends Fragment implements View.OnFocusChangeListener
             }
         });
     }
-
 
     /**
      * 重置频道列表数据
