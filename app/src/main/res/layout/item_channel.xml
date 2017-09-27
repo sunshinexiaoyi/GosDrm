@@ -3,15 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    >
+    android:orientation="vertical"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp">
 
     <TextView
-        android:id = "@+id/channelName"
-        android:gravity="center"
+        android:id = "@+id/live_channelName"
         android:text = "CCTV 2"
         android:textSize = "@dimen/live_itemText"
         android:textColor = "@color/white"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"/>
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_height="30dp"
+        android:layout_width="match_parent" />
 </LinearLayout>

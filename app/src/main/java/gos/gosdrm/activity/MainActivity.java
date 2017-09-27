@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
         live_fm = new LiveFragment();
         fm = getSupportFragmentManager();//得到碎片对象
-        fm.beginTransaction().add(R.id.live_fragment, live_fm).commit();//启动了碎片
+        //fm.beginTransaction().add(R.id.live_fragment, live_fm).commit();//启动了碎片
         Log.e("消息", "启动碎片成功");
     }
 }

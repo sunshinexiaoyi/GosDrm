@@ -6,4 +6,11 @@
     <string name="formatTime">hh:mm</string>
     <string name="formatDate">yyyy-MM-dd</string>
     <string name="formatWeek">EEEE</string>
+
+        <!-- TODO: Remove or change this placeholder text -->
+    <string name="home">首页</string>
+    <string name="live">直播</string>
+    <string name="setting">设置</string>
+    <string name="about">关于</string>
+
 </resources>
