@@ -24,12 +24,15 @@
             android:layout_height="40dp"
             android:visibility="invisible"/>
         <!--搜索框-->
-        <SearchView
-            android:id="@+id/live_search"
+        <ImageView
+            android:id="@+id/importFile"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="5"
-            android:background="@drawable/live_search_bg"
+            android:background="@drawable/bg_view"
+            android:src="@drawable/live_import_file"
+            android:focusable="true"
+            android:clickable="true"
             />
         <!--时间-->
         <TextClock
@@ -100,7 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/live_player_bg"/>
+                android:background="@drawable/bg_layout"/>
             <!--控制上下的间距-->
             <View
                 android:layout_width="0dp"

@@ -1,20 +1,26 @@
 package gos.gosdrm.fragment;
 import gos.gosdrm.R;
-import gos.gosdrm.adapter.ChannelAdapter;
+import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.Channel;
 import gos.gosdrm.data.PageInfo;
 import gos.gosdrm.data.Return;
 import gos.gosdrm.tool.HttpUtils;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
 import okhttp3.Request;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,7 +35,11 @@ import android.content.BroadcastReceiver;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import static  gos.gosdrm.define.PlayerUrl.*;
 
@@ -38,10 +48,11 @@ public class LiveFragment extends Fragment{
 
     private WlanReceiver wlanReceiver;//监听WLAN状态
     private View view;
+    private ImageView importFile;
 
     HttpUtils httpUtils = HttpUtils.getInstance();  //获取http实例
 
-    private ChannelAdapter<Channel> channelAdapter;
+    private ReuseAdapter<Channel> channelAdapter;
     private ListView channelListView;   //频道listView
     private int channelCounter = 0;   //获取频道列表失败计数器
 
@@ -74,28 +85,57 @@ public class LiveFragment extends Fragment{
         getActivity().registerReceiver(wlanReceiver, itf);//注册广播
     }
 
-    @Override
-    public void onResume() {
-        Log.e(TAG,"onResume");
-        super.onResume();
-        if(mediaIsPause){
-            Log.e(TAG,"onResume --开始播放器");
-            mVideoView.start();
-        }
-
+    private void initImportFile(){
+        importFile = view.findViewById(R.id.importFile);
+        importFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "onClick");
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent,1);
+            }
+        });
     }
 
     @Override
-    public void onPause() {
-        Log.e(TAG,"onPause");
-        super.onPause();
-        if(mVideoView.isPlaying()){
-            mVideoView.pause();
-            mediaIsPause = true;
-            Log.e(TAG,"onPause --暂停播放器");
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {//是否选择，没选择就不会继续
+            Uri uri = data.getData();//得到uri，后面就是将uri转化成file的过程。
+            String[] proj = {MediaStore.Images.Media.DATA};
+            Cursor actualimagecursor = getActivity().managedQuery(uri, proj, null, null, null);
+            int actual_image_column_index = actualimagecursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            actualimagecursor.moveToFirst();
+            String img_path = actualimagecursor.getString(actual_image_column_index);
+            File file = new File(img_path);
+            Toast.makeText(getContext(), file.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * 当fragment可见状态改变时回调
+     * @param hidden
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if(hidden){ //隐藏
+            Log.e(TAG,"onPause");
+            if(mVideoView.isPlaying()){
+                mVideoView.pause();
+                mediaIsPause = true;
+                Log.e(TAG,"onPause --暂停播放器");
+            }
+        }else { //显示
+
+            Log.e(TAG,"onResume");
+            if(mediaIsPause){
+                Log.e(TAG,"onResume --开始播放器");
+                mVideoView.start();
+            }
+        }
+    }
 
     @Override
     public void onDetach() {
@@ -115,6 +155,10 @@ public class LiveFragment extends Fragment{
             week.setFormat12Hour("EEEE");//设置星期
             Log.e("调整时间日期消息", "已经修正时间格式为12小时制");
         }
+    }
+
+    public void getAllChannelByFile() {
+        channelAdapter.resetAll(importXlsFile());
     }
 
     //设置无线检测
@@ -154,12 +198,15 @@ public class LiveFragment extends Fragment{
     private void initView(){
         initChannelView();
         initVideoView();
+        initImportFile();
     }
 
     private void initData() {
         initWifi();
         setTime(view);//初始化时间
-        getAllChannel();
+
+        getAllChannelByFile();
+        //getAllChannel();
     }
 
     /**
@@ -178,7 +225,7 @@ public class LiveFragment extends Fragment{
      */
     private void initChannelView() {
         channelListView = view.findViewById(R.id.live_channelList);
-        channelAdapter = new ChannelAdapter<Channel>(getActivity(), R.layout.item_channel) {
+        channelAdapter = new ReuseAdapter<Channel>(getActivity(), R.layout.item_channel) {
             @Override
             public void bindView(Holder holder, Channel obj) {
                 holder.setText(R.id.live_channelName, obj.getChannelName());
@@ -278,7 +325,45 @@ public class LiveFragment extends Fragment{
      */
     private void resetChannelListView(ArrayList<Channel> channels){
         Log.e(TAG, "频道列表的长度：" + channels.size());
-        channelAdapter.addAll(channels);
+        channelAdapter.resetAll(channels);
         //channelListView.requestFocus();
+    }
+
+    /**
+     * 导入文件中的节目
+     * @return
+     */
+    private ArrayList<Channel> importXlsFile(){
+        ArrayList<Channel> channels = new ArrayList<>();
+        try {
+            InputStream is = new FileInputStream("data/app/ec.xls");
+            try {
+                Workbook workbook = Workbook.getWorkbook(is);
+                int num = workbook.getNumberOfSheets();
+                Log.e(TAG,"num:"+num);
+
+                Sheet sheet = workbook.getSheet(0);
+                int rows = sheet.getRows();
+                int cols = sheet.getColumns();
+                Log.e(TAG,"rows:"+rows);
+                Log.e(TAG,"cols:"+cols);
+                for(int r=1;r<rows;r++){//跳过标题
+                    Channel channel = new Channel();
+                    channel.setChannelName(sheet.getCell(0,r).getContents());
+                    channel.setLiveUrl(sheet.getCell(1,r).getContents());
+                    Log.e(TAG,"getChannelName:"+channel.getChannelName());
+                    Log.e(TAG,"getLiveUrl:"+channel.getLiveUrl());
+                    channels.add(channel);
+                }
+                return channels;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (BiffException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
