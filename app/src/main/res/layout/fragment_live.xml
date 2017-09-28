@@ -25,14 +25,12 @@
             android:visibility="invisible"/>
         <!--搜索框-->
         <ImageView
-            android:id="@+id/importFile"
+            android:id="@+id/live_search"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="5"
-            android:background="@drawable/bg_view"
-            android:src="@drawable/live_import_file"
-            android:focusable="true"
-            android:clickable="true"
+            android:src = "@drawable/live_import_file"
+            android:background="@drawable/live_search_bg"
             />
         <!--时间-->
         <TextClock
@@ -98,12 +96,10 @@
             android:orientation = "vertical"
             android:layout_weight="1">
             <!--播放器空间-->
-            <VideoView
-                android:id = "@+id/videoView"
+            <include layout = "@layout/live_player"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_layout"/>
+                android:layout_weight="1" />
             <!--控制上下的间距-->
             <View
                 android:layout_width="0dp"
@@ -131,13 +127,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight = "1.2"/>
-        <!--<ListView-->
-            <!--android:id = "@+id/live_channelList"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight = "1.2"-->
-            <!--android:background="@drawable/live_list_prog_bg"-->
-            <!--android:listSelector="@drawable/live_channel">-->
-        <!--</ListView>-->
     </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id = "@+id/live_player"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/live_player_bg">
+
+    <gos.gosdrm.data.CustomVideoView
+        android:id = "@+id/live_videoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <!--底部的工具条，包括播放/暂停按钮，进度条，已用/总时间，全屏按钮-->
+    <!--<LinearLayout-->
+        <!--android:id = "@+id/live_player_bottomToolbar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal">-->
+        <!--&lt;!&ndash;播放/暂停按钮&ndash;&gt;-->
+        <!--<Button-->
+            <!--android:id = "@+id/live_player_bottomToolbar_play"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent" />-->
+    <!--</LinearLayout>-->
+
+</FrameLayout>

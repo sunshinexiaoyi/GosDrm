@@ -2,7 +2,6 @@ package gos.gosdrm.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +24,19 @@ import java.util.ArrayList;
  *
  * 备注：ViewGroup:上层layout， 利用它可以对上层layout进行操作
  */
-public abstract class ReuseAdapter<T> extends BaseAdapter {
+public abstract class ChannelAdapter<T> extends BaseAdapter {
     private Context context;//这里保存是为了给内部类也能使用上下文
     private ArrayList<T> list;//一个通用item列表，将获取到的item全部保存到这里，组成一个listview
     private int layoutRes;//布局的id需要从外面传进来，bind中需要用它来获取convertView
 
     //构造方法，从ACT中传入三个数据
-    public ReuseAdapter(Context context, ArrayList<T> list, int layoutRes) {
+    public ChannelAdapter(Context context, ArrayList<T> list, int layoutRes) {
         this.context = context;
         this.list = list;
         this.layoutRes = layoutRes;
     }
     //构造方法，从ACT中传入两个数据
-    public ReuseAdapter(Context context, int layoutRes) {
+    public ChannelAdapter(Context context, int layoutRes) {
         this.context = context;
         this.layoutRes = layoutRes;
     }
@@ -65,7 +64,6 @@ public abstract class ReuseAdapter<T> extends BaseAdapter {
     }
     @Override
     public long getItemId(int position) {
-       // Log.e("getItemId的值", position + "");
         return position;
     }
 
@@ -86,7 +84,6 @@ public abstract class ReuseAdapter<T> extends BaseAdapter {
          * 完成了findbyId部分
          * 完成了view的实例化
          */
-       // Log.e("getView","position:"+position);
         Holder holder = Holder.bind(position, convertView, parent, layoutRes, context);
 
         /**这里的实现交由外部完成，set数据部分
@@ -220,14 +217,6 @@ public abstract class ReuseAdapter<T> extends BaseAdapter {
             return this;
         }
 
-        public Holder setText(int id, int  resId) {
-            View view = getView(id);
-            if (view instanceof TextView) {
-                ((TextView) view).setText(resId);//需要将view转换成相应的view
-            }
-            return this;
-        }
-
         //2、设置文本框宽度
         public void setTextWidth(int id, int px) {
             //不处理特殊数据：wrap_content/match_parent/fill_parent（都是负数）
@@ -346,21 +335,16 @@ public abstract class ReuseAdapter<T> extends BaseAdapter {
         notifyDataSetChanged();
     }
     //一次性添加全部item
-    public void resetAll(ArrayList<T> arrayList) {
+    public void addAll(ArrayList<T> arrayList) {
         if (list == null) {
             list = new ArrayList<>();
         }
         list.clear();
-        if (arrayList == null) {
-            Log.e("适配器内部消息", "arrayList中什么也没有");
-        } else {
-            list.addAll(arrayList);
-        }
+        list.addAll(arrayList);
         notifyDataSetChanged();
     }
-
     //在制定位置上添加全部item
-    public void resetAll(int position, ArrayList<T> arrayList) {
+    public void addAll(int position, ArrayList<T> arrayList) {
         if (list == null) {
             list = new ArrayList<>();
         }

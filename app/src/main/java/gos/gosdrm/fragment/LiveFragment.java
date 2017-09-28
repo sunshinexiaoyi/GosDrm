@@ -2,6 +2,7 @@ package gos.gosdrm.fragment;
 import gos.gosdrm.R;
 import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.Channel;
+import gos.gosdrm.data.CustomVideoView;
 import gos.gosdrm.data.PageInfo;
 import gos.gosdrm.data.Return;
 import gos.gosdrm.tool.HttpUtils;
@@ -26,9 +27,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.MediaController;
 import android.widget.TextClock;
 import android.text.format.DateFormat;
 import android.content.BroadcastReceiver;
@@ -56,7 +59,8 @@ public class LiveFragment extends Fragment{
     private ListView channelListView;   //频道listView
     private int channelCounter = 0;   //获取频道列表失败计数器
 
-    public VideoView mVideoView;
+    public CustomVideoView mVideoView;
+    private MediaController mediaController;
     private boolean mediaIsPause = false;//播放器是否被暂停
 
     @Override
@@ -86,7 +90,7 @@ public class LiveFragment extends Fragment{
     }
 
     private void initImportFile(){
-        importFile = view.findViewById(R.id.importFile);
+        importFile = view.findViewById(R.id.live_search);
         importFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -213,7 +217,14 @@ public class LiveFragment extends Fragment{
      * 初始化播放器
      */
     private void initVideoView() {
-        mVideoView =  view.findViewById(R.id.videoView);
+        mVideoView =  view.findViewById(R.id.live_videoView);
+        mVideoView.measure(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+
+        //播放器控制
+//        mediaController = new MediaController(getActivity());
+//        mVideoView.setMediaController(mediaController);
+//        mediaController.setEnabled(false);
+
         /*mVideoView.setOnPreparedListener(this);
         mVideoView.setOnCompletionListener(this);
         mVideoView.setOnErrorListener(this);
@@ -336,7 +347,7 @@ public class LiveFragment extends Fragment{
     private ArrayList<Channel> importXlsFile(){
         ArrayList<Channel> channels = new ArrayList<>();
         try {
-            InputStream is = new FileInputStream("data/app/ec.xls");
+            InputStream is = new FileInputStream("/sdcard/ec.xls");
             try {
                 Workbook workbook = Workbook.getWorkbook(is);
                 int num = workbook.getNumberOfSheets();
