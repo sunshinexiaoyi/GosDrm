@@ -1,23 +1,80 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/live_bg"
     tools:context="gos.gosdrm.fragment.AboutFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <ImageView
-        android:id="@+id/imageView3"
+    <android.support.constraint.Guideline
+        android:id="@+id/gl_h_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/info"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        android:layout_marginTop="153dp"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.40"
+        tools:layout_editor_absoluteY="143dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/gl_h_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8"
+        tools:layout_editor_absoluteY="394dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/gl_v_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.35" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/gl_v_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.65" />
+
+    <TextView
+        android:id="@+id/aus_tv_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h_1"
+        app:layout_constraintLeft_toLeftOf="@+id/gl_v_1"
+        app:layout_constraintRight_toLeftOf="@+id/gl_v_2"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        android:text="@string/about_edition"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:drawableTop="@drawable/ic_launcher"
+        app:layout_constraintVertical_bias="0.7" />
+
+    <ListView
+        android:id="@+id/aus_listView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:dividerHeight="4dp"
+        android:divider="#00000000"
+        app:layout_constraintBottom_toTopOf="@+id/gl_h_2"
+        app:layout_constraintTop_toBottomOf="@+id/gl_h_1"
+        app:layout_constraintLeft_toRightOf="@+id/gl_v_1"
+        app:layout_constraintRight_toLeftOf="@+id/gl_v_2" />
+
+    <TextView
+        android:id="@+id/aus_tv_2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/gl_v_1"
+        app:layout_constraintRight_toLeftOf="@+id/gl_v_2"
+        app:layout_constraintTop_toBottomOf="@+id/gl_h_2"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:text="@string/about_author" />
+
 </android.support.constraint.ConstraintLayout>
