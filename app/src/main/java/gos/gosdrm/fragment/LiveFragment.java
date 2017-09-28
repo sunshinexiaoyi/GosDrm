@@ -1,4 +1,5 @@
 package gos.gosdrm.fragment;
+
 import gos.gosdrm.R;
 import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.Channel;
@@ -149,7 +150,6 @@ public class LiveFragment extends Fragment{
                 Log.e(TAG,"onPause --暂停播放器");
             }
         }else { //显示
-
             Log.e(TAG,"onResume");
             if(isMediaPause){
                 Log.e(TAG,"onResume --开始播放器");
@@ -231,9 +231,7 @@ public class LiveFragment extends Fragment{
         //getAllChannel();
     }
 
-    /**
-     * 初始化播放器
-     */
+    //初始化播放器
     private void initVideoView() {
         mVideoView =  view.findViewById(R.id.live_videoView);
         mVideoView.measure(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
@@ -257,11 +255,10 @@ public class LiveFragment extends Fragment{
         mVideoView.setOnInfoListener(this);*/
     }
 
-    /**
-     * 初始化频道列表
-     */
+    //初始化频道列表
     private void initChannelView() {
         channelListView = view.findViewById(R.id.live_channelList);
+        channelListView.setVerticalScrollBarEnabled(false);//隐藏滚动条，还有布局内另一个属性需要配合
         channelAdapter = new ReuseAdapter<Channel>(getActivity(), R.layout.item_channel) {
             @Override
             public void bindView(Holder holder, Channel obj) {
@@ -335,9 +332,7 @@ public class LiveFragment extends Fragment{
         mVideoView.start();
     }
 
-    /**
-     * 获取所有频道
-     */
+    //获取所有频道
     private void getAllChannel(){
         httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>(){
             @Override

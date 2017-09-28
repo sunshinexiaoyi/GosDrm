@@ -1,9 +1,7 @@
 package gos.gosdrm.data;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.VideoView;
 
 /**
@@ -30,5 +28,4 @@ public class CustomVideoView extends VideoView {
         int height = getDefaultSize(mVideoHeight, heightMeasureSpec);
         setMeasuredDimension(width, height);
     }
-
 }

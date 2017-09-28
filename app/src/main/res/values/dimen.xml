@@ -6,6 +6,7 @@
     <dimen name="live_itemText">20sp</dimen>
     <dimen name="live_epg_progNameText">22sp</dimen>
     <dimen name="live_epg_proginfoText">12sp</dimen>
+    <dimen name="home_menuText">22sp</dimen>
     <dimen name="home_menu_height">60dp</dimen>
 
 </resources>

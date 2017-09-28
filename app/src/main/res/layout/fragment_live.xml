@@ -1,147 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id = "@+id/live_MAIN"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
     android:background="@drawable/live_bg">
-
-    <!--第一行-->
+    <!--播放器和正在播放的节目信息-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="11"
-        android:baselineAligned="false"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center">
-        <!--控制搜索框居中-->
-        <View
-            android:layout_width="0dp"
-            android:layout_weight="5.7"
-            android:layout_height="40dp"
-            android:visibility="invisible"/>
-        <!--搜索框-->
-        <ImageView
-            android:id="@+id/importNet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2.5"
-            app:srcCompat="@drawable/live_import_net"
-            android:background="@drawable/bg_view"
-            android:focusable="true"
-            android:clickable="true"
-
-            />
-
-        <ImageView
-            android:id="@+id/importFile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2.5"
-            android:src="@drawable/live_import_file"
-            android:background="@drawable/bg_view"
-            android:focusable="true"
-            android:clickable="true"
-
-            />
-        <!--时间-->
-        <TextClock
-            android:id="@+id/live_time"
-            android:format24Hour="@string/formatTime"
-            android:textColor="@color/white"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="3.2"
-            android:gravity="right|center_vertical"
-            android:textSize="@dimen/live_timeText" />
-        <!--日期-->
-        <LinearLayout
-            android:layout_weight="2"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:orientation="vertical">
-            <TextClock
-                android:id="@+id/live_week"
-                android:textColor="@color/white"
-                android:textSize="@dimen/live_weekText"
-                android:format24Hour="@string/formatWeek"
-                android:layout_width = "match_parent"
-                android:layout_height="20dp"
-                android:gravity = "left|center_vertical|bottom"
-                android:paddingLeft="4dp"/>
-            <TextClock
-                android:id="@+id/live_date"
-                android:textColor="@color/white"
-                android:textSize="@dimen/live_dateText"
-                android:format24Hour="@string/formatDate"
-                android:layout_width = "match_parent"
-                android:layout_height="20dp"
-                android:gravity = "left|center|top"
-                android:paddingLeft="4dp"/>
-        </LinearLayout>
-
-        <!--WLAN图标-->
-        <ImageView
-            android:id="@+id/live_wlan"
-            android:src="@drawable/live_wlan_disconnect"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="0.5" />
-    </LinearLayout>
-
-    <!--第二行-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_weight="1.7"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
-
-        <!--播放器和正在播放的节目信息-->
-        <LinearLayout
+        android:orientation = "vertical"
+        android:layout_weight="0.9">
+        <!--android:descendantFocusability="blocksDescendants">>-->
+        <!--播放器空间-->
+        <include layout = "@layout/live_player"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation = "vertical"
-            android:layout_weight="1">
-            <!--播放器空间-->
-            <include layout = "@layout/live_player"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-            <!--控制上下的间距-->
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight = "2.88"
-                android:visibility="invisible"/>
-
-            <!--正在播放的节目epg信息-->
-            <ListView
-                android:id = "@+id/live_list_cntProg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:background="@drawable/live_list_cntprog_bg"/>
-        </LinearLayout>
-
-        <!--控制左右的间距-->
+            android:layout_weight="0.8" />
+        <!--控制上下的间距-->
         <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight = "2.15"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight = "2.7"
             android:visibility="invisible"/>
-        <!--节目列表-->
-        <include layout = "@layout/fragment_live_channellist_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight = "1.2"/>
+
+        <!--正在播放的节目epg信息-->
+        <ListView
+            android:id = "@+id/live_list_cntProg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/live_list_cntprog_bg"/>
     </LinearLayout>
+
+    <!--控制左右的间距-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight = "2.15"
+        android:visibility="invisible"/>
+    <!--节目列表-->
+    <include layout = "@layout/fragment_live_channellist_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight = "1.3"/>
 </LinearLayout>

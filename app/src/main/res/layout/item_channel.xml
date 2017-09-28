@@ -14,6 +14,11 @@
         android:textColor = "@color/white"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_height="30dp"
-        android:layout_width="match_parent" />
+        android:layout_height="40dp"
+        android:layout_width="match_parent"
+        android:background="@drawable/live_prog_item"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight = "10dp"/>
 </LinearLayout>

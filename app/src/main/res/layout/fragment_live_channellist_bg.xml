@@ -1,19 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background = "@drawable/live_list_prog_bg">
+    android:background = "@drawable/live_prog_bg_netfile">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+        <!--搜索框-->
+        <ImageView
+            android:id="@+id/importNet"
+            android:layout_weight="1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src = "@drawable/live_netfile"
+            android:background="@drawable/bg_view"
+            android:focusable="true"
+            android:clickable="true" />
+        <ImageView
+            android:id="@+id/importFile"
+            android:layout_weight="1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/live_import_file"
+            android:background="@drawable/bg_view"
+            android:focusable="true"
+            android:clickable="true" />
+    </LinearLayout>
 
     <ListView
         android:id = "@+id/live_channelList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:listSelector="@drawable/live_channel"
-        android:background="@drawable/live_list_prog_inner_bg"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:paddingTop="15dp"
-        android:paddingBottom="15dp">
+        android:paddingBottom="15dp"
+        android:divider="@null"
+        android:fastScrollEnabled="false">
     </ListView>
 </LinearLayout>

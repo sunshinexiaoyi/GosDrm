@@ -3,19 +3,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="gos.gosdrm.fragment.HomeFragment"
-    android:background="@drawable/home_bg"
-    >
-
-    <!-- TODO: Update blank fragment layout -->
-
-    <!--<EditText-->
-        <!--android:id="@+id/editText"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:ems="10"-->
-        <!--android:inputType="phone"-->
-        <!--android:text="你好吗"-->
-        <!--android:textSize="25sp"-->
-        <!--android:textColor="#ffff"/>-->
-
+    android:background="@drawable/home_image">
 </FrameLayout>
