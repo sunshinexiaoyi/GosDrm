@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
@@ -36,7 +37,6 @@ import android.widget.TextClock;
 import android.text.format.DateFormat;
 import android.content.BroadcastReceiver;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,7 +61,9 @@ public class LiveFragment extends Fragment{
 
     public CustomVideoView mVideoView;
     private MediaController mediaController;
-    private boolean mediaIsPause = false;//播放器是否被暂停
+
+    private boolean isMediaPause = false;//播放器是否被暂停
+    private boolean isFileImport = false;//是否为文件导入
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,16 +91,31 @@ public class LiveFragment extends Fragment{
         getActivity().registerReceiver(wlanReceiver, itf);//注册广播
     }
 
+    /**
+     * 初始化文件导入
+     */
     private void initImportFile(){
-        importFile = view.findViewById(R.id.live_search);
+        ImageView importFile = view.findViewById(R.id.importFile);
         importFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e(TAG, "onClick");
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent,1);
+                Log.e(TAG,"文件导入");
+                getAllChannelByFile();
+                isFileImport = true;
+            }
+        });
+    }
+
+    /**
+     * 初始化网络导入
+     */
+    private void initImportNet(){
+        ImageView importNet = view.findViewById(R.id.importNet);
+        importNet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG,"网络导入");
+                getAllChannel();
             }
         });
     }
@@ -128,13 +145,13 @@ public class LiveFragment extends Fragment{
             Log.e(TAG,"onPause");
             if(mVideoView.isPlaying()){
                 mVideoView.pause();
-                mediaIsPause = true;
+                isMediaPause = true;
                 Log.e(TAG,"onPause --暂停播放器");
             }
         }else { //显示
 
             Log.e(TAG,"onResume");
-            if(mediaIsPause){
+            if(isMediaPause){
                 Log.e(TAG,"onResume --开始播放器");
                 mVideoView.start();
             }
@@ -203,6 +220,7 @@ public class LiveFragment extends Fragment{
         initChannelView();
         initVideoView();
         initImportFile();
+        initImportNet();
     }
 
     private void initData() {
@@ -219,11 +237,19 @@ public class LiveFragment extends Fragment{
     private void initVideoView() {
         mVideoView =  view.findViewById(R.id.live_videoView);
         mVideoView.measure(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        mVideoView.clearFocus();
+        mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                Toast.makeText(getContext(), "播放错误，错误码:"+i, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
 
         //播放器控制
-//        mediaController = new MediaController(getActivity());
-//        mVideoView.setMediaController(mediaController);
-//        mediaController.setEnabled(false);
+      /*  mediaController = new MediaController(getActivity());
+        mVideoView.setMediaController(mediaController);
+        mediaController.setEnabled(false);*/
 
         /*mVideoView.setOnPreparedListener(this);
         mVideoView.setOnCompletionListener(this);
@@ -248,11 +274,13 @@ public class LiveFragment extends Fragment{
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Channel channel = channelAdapter.getItem(i);
-                if(mpdUrl.length>i){
-                    startPreviewPlay(mpdUrl[i]);
+
+                if(isFileImport){
+                    startPreviewPlay(channel.getLiveUrl());
                 }else {
                     startPreviewPlay(formatUrl(channel));
                 }
+
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {}
@@ -263,12 +291,12 @@ public class LiveFragment extends Fragment{
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Channel channel = channelAdapter.getItem(i);
-                if(mpdUrl.length>i){
-                    startFullPlay(mpdUrl[i]);
+                if(isFileImport){
+                    startFullPlay(channel.getLiveUrl());
                 }else {
                     startFullPlay(formatUrl(channel));
                 }
-                //startFullPlay(formatUrl(channel));
+
             }
         });
     }
@@ -314,8 +342,8 @@ public class LiveFragment extends Fragment{
         httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>(){
             @Override
             public void success( Return<PageInfo<Channel>> ret) {
+                isFileImport = false;
                 ArrayList<Channel> channels = ret.getBody().getItems();
-
                 resetChannelListView(channels);
             }
             @Override
@@ -345,7 +373,8 @@ public class LiveFragment extends Fragment{
      * @return
      */
     private ArrayList<Channel> importXlsFile(){
-        ArrayList<Channel> channels = new ArrayList<>();
+        isFileImport = true;
+        ArrayList<Channel> channels =null;
         try {
             InputStream is = new FileInputStream("/sdcard/ec.xls");
             try {
@@ -358,23 +387,27 @@ public class LiveFragment extends Fragment{
                 int cols = sheet.getColumns();
                 Log.e(TAG,"rows:"+rows);
                 Log.e(TAG,"cols:"+cols);
+
+                channels = new ArrayList<>();
                 for(int r=1;r<rows;r++){//跳过标题
                     Channel channel = new Channel();
                     channel.setChannelName(sheet.getCell(0,r).getContents());
-                    channel.setLiveUrl(sheet.getCell(1,r).getContents());
+                    channel.setLiveUrl(sheet.getCell(2,r).getContents());
                     Log.e(TAG,"getChannelName:"+channel.getChannelName());
                     Log.e(TAG,"getLiveUrl:"+channel.getLiveUrl());
                     channels.add(channel);
                 }
-                return channels;
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (BiffException e) {
                 e.printStackTrace();
             }
         } catch (FileNotFoundException e) {
+            Toast.makeText(getContext(), "不存在/sdcard/ec.xls文件，请传入！ ", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+        }finally {
+            return channels;
         }
-        return null;
+
     }
 }
