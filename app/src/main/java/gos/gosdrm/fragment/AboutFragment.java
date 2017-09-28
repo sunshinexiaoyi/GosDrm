@@ -11,14 +11,19 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gos.gosdrm.R;
 import gos.gosdrm.adapter.ReuseAdapter;
+import gos.gosdrm.define.GOSKeyCode;
 
 
 public class AboutFragment extends Fragment {
     private ListView mListview;
     private View view;
     ReuseAdapter<String> listAdapter;
+    List<String> mList;
 
     public AboutFragment() {
         // Required empty public constructor
@@ -29,8 +34,16 @@ public class AboutFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_about, container, false);
+        initData();
         initListview();
         return view;
+    }
+
+    public void initData() {
+        mList = new ArrayList<>();
+        mList.add("功能介绍");
+        mList.add("投诉");
+        mList.add("检查新版本");
     }
 
     public void  initListview() {
@@ -41,9 +54,12 @@ public class AboutFragment extends Fragment {
                 holder.setText(R.id.item_aus_tv, obj);
             }
         };
-        listAdapter.add(0, "功能介绍");
-        listAdapter.add(1, "投诉");
-        listAdapter.add(2, "检查新版本");
+
+        int i = 0;
+        for (String s : mList) {
+            listAdapter.add(i, mList.get(i));
+            i++;
+        }
         mListview.setAdapter(listAdapter);
 
         mListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -64,6 +80,25 @@ public class AboutFragment extends Fragment {
                         Toast.makeText(getActivity(), "已经是最新版本了", Toast.LENGTH_SHORT).show();
                         break;
                 }
+            }
+        });
+
+        mListview.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(mList.size() > 1) {
+                    if (0 == i) {
+                       // Toast.makeText(getActivity(), "0", Toast.LENGTH_SHORT).show();
+
+                    } else if((mList.size()-1) == i) {
+                        //Toast.makeText(getActivity(), "2", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
     }
