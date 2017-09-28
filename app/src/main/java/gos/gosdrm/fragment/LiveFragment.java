@@ -1,6 +1,7 @@
 package gos.gosdrm.fragment;
 
 import gos.gosdrm.R;
+import gos.gosdrm.activity.MainActivity;
 import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.Channel;
 import gos.gosdrm.data.CustomVideoView;
@@ -13,10 +14,12 @@ import jxl.read.biff.BiffException;
 import okhttp3.Request;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -25,6 +28,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +41,7 @@ import android.widget.MediaController;
 import android.widget.TextClock;
 import android.text.format.DateFormat;
 import android.content.BroadcastReceiver;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -52,7 +57,6 @@ public class LiveFragment extends Fragment{
 
     private WlanReceiver wlanReceiver;//监听WLAN状态
     private View view;
-    private ImageView importFile;
 
     HttpUtils httpUtils = HttpUtils.getInstance();  //获取http实例
 
@@ -60,11 +64,12 @@ public class LiveFragment extends Fragment{
     private ListView channelListView;   //频道listView
     private int channelCounter = 0;   //获取频道列表失败计数器
 
-    public CustomVideoView mVideoView;
-    private MediaController mediaController;
+    public CustomVideoView mVideoView;//自定义VideoView，目前仅实现固定视频画面尺寸方法
 
     private boolean isMediaPause = false;//播放器是否被暂停
     private boolean isFileImport = false;//是否为文件导入
+
+    private View layout;//频道导入类型变化导致背景更换
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -96,11 +101,14 @@ public class LiveFragment extends Fragment{
      * 初始化文件导入
      */
     private void initImportFile(){
-        ImageView importFile = view.findViewById(R.id.importFile);
+        layout = (View)view.findViewById(R.id.live_CHANNELLIST);
+        TextView importFile = view.findViewById(R.id.live_importLocal);
         importFile.setOnClickListener(new View.OnClickListener() {
+            boolean foldIt;
             @Override
             public void onClick(View view) {
                 Log.e(TAG,"文件导入");
+                layout.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//更改频道列表背景图
                 getAllChannelByFile();
                 isFileImport = true;
             }
@@ -111,11 +119,14 @@ public class LiveFragment extends Fragment{
      * 初始化网络导入
      */
     private void initImportNet(){
-        ImageView importNet = view.findViewById(R.id.importNet);
+        layout = (View)view.findViewById(R.id.live_CHANNELLIST);
+        TextView importNet = view.findViewById(R.id.live_importNet);
         importNet.setOnClickListener(new View.OnClickListener() {
+            boolean foldIt;
             @Override
             public void onClick(View view) {
                 Log.e(TAG,"网络导入");
+                layout.setBackgroundResource(R.drawable.live_channel_bg_importnet);//更改频道列表背景图
                 getAllChannel();
             }
         });
@@ -268,10 +279,28 @@ public class LiveFragment extends Fragment{
         channelListView.setAdapter(channelAdapter);
         //选择 预览播放
         channelListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            TextView tempView = null;
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Channel channel = channelAdapter.getItem(i);
+                //先还原上一个item的文字颜色
+                if (tempView != null) {
+                    tempView.setTextColor(Color.parseColor("#ffffff"));
+                }
+                //高亮
+                View v = channelListView.getSelectedView();
+                TextView t = (TextView) v.findViewById(R.id.live_channelName);
+                t.setTextColor(Color.parseColor("#18ad00"));
+                tempView = t;//保存这个"上一个文字对象"
 
+                /**
+                 * 到达频道列表末端处理：回到顶端
+                 * 缺陷未处理：但长按的话会导致来不及处理而直接调到导航栏
+                 */
+                Channel channel = channelAdapter.getItem(i);
+                if (i == (adapterView.getCount() - 1)) {
+                    Log.e("消息", "已经到达列表末端，返回最上端");
+                    channelListView.setSelection(0);
+                }
                 if(isFileImport){
                     startPreviewPlay(channel.getLiveUrl());
                 }else {

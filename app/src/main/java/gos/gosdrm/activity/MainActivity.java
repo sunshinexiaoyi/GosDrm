@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import org.w3c.dom.Text;
 
@@ -45,19 +46,28 @@ public class MainActivity extends AppCompatActivity {
      * getRepeatCount：重复次数，防止多次后退
      * 1、短按回到导航
      * 2、长按退出应用
+     * 3、向下可以回到导航栏
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        GridView homeMenuView = (GridView)findViewById(R.id.homeMenu);
+        //短按返回导航栏
         if ((keyCode == KeyEvent.KEYCODE_BACK) && (event.getRepeatCount() == 0)) {
-            Log.e("消息", "按下了返回键，焦点回到导航栏");
-            GridView homeMenuView = (GridView)findViewById(R.id.homeMenu);
+            Log.e("消息", "短按返回键，焦点需要无条件回到导航栏");
             homeMenuView.requestFocus();
             return false;
         }
+        //长按退出应用
         if ((keyCode == KeyEvent.KEYCODE_BACK) && (event.getRepeatCount() != 0)) {
-            Log.e("消息", "重复按下返回键，退出程序");
+            Log.e("消息", "长按返回键，需要退出程序");
             finish();
             return false;
+        }
+        //向下回到导航栏
+        View videoView = findViewById(R.id.live_videoView);
+        if ((videoView != null) && (videoView.isFocused()) && (keyCode == KeyEvent.KEYCODE_DPAD_DOWN)) {
+            Log.e("消息", "焦点需要从播放器回到导航栏");
+            homeMenuView.requestFocus();
         }
         return false;
     }

@@ -3,13 +3,11 @@
     <item  android:state_focused="true">
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
             <stroke android:color="@color/focusSel" android:width="1dp"></stroke>
-            <corners android:radius="15dp"></corners>
+            <corners android:radius="6dp"></corners>
         </shape>
     </item>
     <item >
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
-
         </shape>
     </item>
-
 </selector>
