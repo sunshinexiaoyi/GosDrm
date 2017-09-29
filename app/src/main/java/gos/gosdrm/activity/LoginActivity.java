@@ -4,16 +4,17 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import gos.gosdrm.R;
 
 public class LoginActivity extends AppCompatActivity {
 
     private Button login;
+    private EditText text;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,10 +27,26 @@ public class LoginActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(option);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.hide();
+
 
         login = (Button) findViewById(R.id.login);
+
+        //获取按钮焦点
+        login.setOnFocusChangeListener(new Button.OnFocusChangeListener(){
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                // TODO Auto-generated method stub
+                if(hasFocus == true) {
+                    login.setBackgroundResource(R.drawable.login_chosen_pr);
+
+                }else{
+                    login.setBackgroundResource(R.drawable.login_btn_bg);
+                }
+            }
+        });
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

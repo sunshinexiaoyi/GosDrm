@@ -1,5 +1,39 @@
 package gos.gosdrm.fragment;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
+import android.text.format.DateFormat;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextClock;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
 import gos.gosdrm.R;
 import gos.gosdrm.activity.MainActivity;
 import gos.gosdrm.adapter.ReuseAdapter;
@@ -13,45 +47,7 @@ import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import okhttp3.Request;
 
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.media.MediaPlayer;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
-import android.text.Layout;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.MediaController;
-import android.widget.TextClock;
-import android.text.format.DateFormat;
-import android.content.BroadcastReceiver;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import static  gos.gosdrm.define.PlayerUrl.*;
+import static gos.gosdrm.define.PlayerUrl.channelRequestUrl;
 
 public class LiveFragment extends Fragment{
     private final String TAG = getClass().getSimpleName();
@@ -255,7 +251,6 @@ public class LiveFragment extends Fragment{
         mVideoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int curTime = mVideoView.getCurrentPosition();//得到播放的进度
                 startFullPlay(formatUrl(channel));
             }
         });
