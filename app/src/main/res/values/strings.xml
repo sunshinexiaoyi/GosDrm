@@ -11,4 +11,8 @@
     <string name="setting">设置</string>
     <string name="about">关于</string>
 
+
+    //AboutUs
+    <string name="about_author">\@wildwolf\n2017</string>
+    <string name="about_edition">GosDrm 1.0.1</string>
 </resources>

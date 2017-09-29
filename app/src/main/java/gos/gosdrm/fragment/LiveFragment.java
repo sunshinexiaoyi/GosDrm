@@ -65,13 +65,13 @@ public class LiveFragment extends Fragment{
     private ListView channelListView;   //频道listView
     private int channelCounter = 0;   //获取频道列表失败计数器
 
-    public CustomVideoView mVideoView;//自定义VideoView，目前仅实现固定视频画面尺寸方法
+    public CustomVideoView mVideoView;//自定义VideoView，目前仅实现测量视频画面尺寸方法
 
     private boolean isMediaPause = false;//播放器是否被暂停
     private boolean isFileImport = false;//是否为文件导入
     private Channel channel;//频道
 
-    private View layout;//频道导入类型变化导致背景更换
+    private View layout;//频道导入类型变化强迫背景更换
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,8 +84,8 @@ public class LiveFragment extends Fragment{
 
         view = inflater.inflate(R.layout.fragment_live,container, false);
 
-        initView();
-        initData();
+        initView();//View部分初始化
+        initData();//数据部分初始化
         return view;
     }
 
@@ -255,6 +255,7 @@ public class LiveFragment extends Fragment{
         mVideoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int curTime = mVideoView.getCurrentPosition();//得到播放的进度
                 startFullPlay(formatUrl(channel));
             }
         });
