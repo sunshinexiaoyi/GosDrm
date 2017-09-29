@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.text.Layout;
@@ -68,6 +69,7 @@ public class LiveFragment extends Fragment{
 
     private boolean isMediaPause = false;//播放器是否被暂停
     private boolean isFileImport = false;//是否为文件导入
+    private Channel channel;//频道
 
     private View layout;//频道导入类型变化导致背景更换
 
@@ -79,17 +81,15 @@ public class LiveFragment extends Fragment{
             Log.e(TAG, "view复用");
             return view;
         }
+
         view = inflater.inflate(R.layout.fragment_live,container, false);
 
         initView();
         initData();
-
         return view;
     }
 
-    /**
-     * 初始化wifi
-     */
+    //初始化wifi
     private void initWifi(){
         wlanReceiver = new WlanReceiver();
         IntentFilter itf = new IntentFilter();
@@ -97,9 +97,7 @@ public class LiveFragment extends Fragment{
         getActivity().registerReceiver(wlanReceiver, itf);//注册广播
     }
 
-    /**
-     * 初始化文件导入
-     */
+    //初始化文件导入
     private void initImportFile(){
         layout = (View)view.findViewById(R.id.live_CHANNELLIST);
         TextView importFile = view.findViewById(R.id.live_importLocal);
@@ -107,7 +105,7 @@ public class LiveFragment extends Fragment{
             boolean foldIt;
             @Override
             public void onClick(View view) {
-                Log.e(TAG,"文件导入");
+                Log.e(TAG,"本地源导入");
                 layout.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//更改频道列表背景图
                 getAllChannelByFile();
                 isFileImport = true;
@@ -115,9 +113,7 @@ public class LiveFragment extends Fragment{
         });
     }
 
-    /**
-     * 初始化网络导入
-     */
+    //初始化网络导入
     private void initImportNet(){
         layout = (View)view.findViewById(R.id.live_CHANNELLIST);
         TextView importNet = view.findViewById(R.id.live_importNet);
@@ -125,7 +121,7 @@ public class LiveFragment extends Fragment{
             boolean foldIt;
             @Override
             public void onClick(View view) {
-                Log.e(TAG,"网络导入");
+                Log.e(TAG,"网络源导入");
                 layout.setBackgroundResource(R.drawable.live_channel_bg_importnet);//更改频道列表背景图
                 getAllChannel();
             }
@@ -191,6 +187,7 @@ public class LiveFragment extends Fragment{
 
     public void getAllChannelByFile() {
         channelAdapter.resetAll(importXlsFile());
+        MainActivity.isChannelEmpty = channelAdapter.isEmpty() ? true : false;//保存列表内容状态
     }
 
     //设置无线检测
@@ -234,19 +231,19 @@ public class LiveFragment extends Fragment{
         initImportNet();
     }
 
+    //初始化集合
     private void initData() {
         initWifi();
         setTime(view);//初始化时间
 
-        getAllChannelByFile();
-        //getAllChannel();
+       //getAllChannelByFile();//默认从文件中导入
+        getAllChannel();//默认从网络导入
     }
 
     //初始化播放器
     private void initVideoView() {
         mVideoView =  view.findViewById(R.id.live_videoView);
-        mVideoView.measure(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-        mVideoView.clearFocus();
+        //重写播放器的错误监听以消除播放失败弹出对话框
         mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
@@ -255,15 +252,12 @@ public class LiveFragment extends Fragment{
             }
         });
 
-        //播放器控制
-      /*  mediaController = new MediaController(getActivity());
-        mVideoView.setMediaController(mediaController);
-        mediaController.setEnabled(false);*/
-
-        /*mVideoView.setOnPreparedListener(this);
-        mVideoView.setOnCompletionListener(this);
-        mVideoView.setOnErrorListener(this);
-        mVideoView.setOnInfoListener(this);*/
+        mVideoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startFullPlay(formatUrl(channel));
+            }
+        });
     }
 
     //初始化频道列表
@@ -286,7 +280,7 @@ public class LiveFragment extends Fragment{
                 if (tempView != null) {
                     tempView.setTextColor(Color.parseColor("#ffffff"));
                 }
-                //高亮
+                //文字高亮
                 View v = channelListView.getSelectedView();
                 TextView t = (TextView) v.findViewById(R.id.live_channelName);
                 t.setTextColor(Color.parseColor("#18ad00"));
@@ -314,9 +308,10 @@ public class LiveFragment extends Fragment{
 
         //点击 全屏播放
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            boolean foldIt;
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Channel channel = channelAdapter.getItem(i);
+                channel = channelAdapter.getItem(i);
                 if(isFileImport){
                     startFullPlay(channel.getLiveUrl());
                 }else {
@@ -363,11 +358,12 @@ public class LiveFragment extends Fragment{
 
     //获取所有频道
     private void getAllChannel(){
-        httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>(){
+        httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>() {
+            ArrayList<Channel> channels;
             @Override
             public void success( Return<PageInfo<Channel>> ret) {
                 isFileImport = false;
-                ArrayList<Channel> channels = ret.getBody().getItems();
+                channels = ret.getBody().getItems();
                 resetChannelListView(channels);
             }
             @Override
@@ -377,9 +373,9 @@ public class LiveFragment extends Fragment{
                     Log.e(TAG, "重新获取频道");
                     getAllChannel();
                 }
-                //e.printStackTrace();
             }
         });
+        MainActivity.isChannelEmpty = channelAdapter.isEmpty() ? true : false;//保存列表内容状态
     }
 
     /**
@@ -389,7 +385,6 @@ public class LiveFragment extends Fragment{
     private void resetChannelListView(ArrayList<Channel> channels){
         Log.e(TAG, "频道列表的长度：" + channels.size());
         channelAdapter.resetAll(channels);
-        //channelListView.requestFocus();
     }
 
     /**

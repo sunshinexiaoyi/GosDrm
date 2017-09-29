@@ -9,6 +9,7 @@ import gos.gosdrm.fragment.SettingFragment;
 
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -32,6 +33,14 @@ public class MainActivity extends AppCompatActivity {
 
     private ReuseAdapter<HomeMenuItem> homeMenuAdapter;
     private Fragment curFragment; //当前Fragment
+
+    public static boolean isChannelEmpty = true;//观察频道列表是否为空
+    private Handler handler;//在捕获物理按键时的线程数据提交，以启动线程产生时间差使方法提前返回。
+
+    View channelList;
+    View textView1;
+    View textView2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +77,52 @@ public class MainActivity extends AppCompatActivity {
         if ((videoView != null) && (videoView.isFocused()) && (keyCode == KeyEvent.KEYCODE_DPAD_DOWN)) {
             Log.e("消息", "焦点需要从播放器回到导航栏");
             homeMenuView.requestFocus();
+        }
+
+        /**
+         * 频道列表有内容时，立即禁止TextView允许获得焦点和点击，完成跳转到列表后恢复现场
+         * 当频道列表为空时，不取消源选择的焦点和点击
+         */
+        channelList = findViewById(R.id.live_channelList);
+        textView1 = findViewById(R.id.live_importLocal);
+        textView2 = findViewById(R.id.live_importNet);
+        if ((videoView != null) && (videoView.isFocused())
+                && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && (!isChannelEmpty)) {
+            Log.e("消息", "频道列表中有内容，焦点需要从播放器回到频道列表，立即禁止源选项允许获得焦点");
+
+            textView1.setClickable(false);
+            textView2.setClickable(false);
+            textView1.setFocusable(false);
+            textView2.setFocusable(false);
+
+            channelList.requestFocus();//频道列表请求夺取焦点
+
+            /**
+             * 猜测原因：当方法返回后，系统才进行焦点改变处理，所以不能在此方法返回前就恢复现场
+             * 线程的启动和数据处理需要时间，所以方法内的返回语句要先于线程中的逻辑实现被执行，因而能达到目的
+             */
+            handler = new Handler();
+            new Thread() {
+                public void run() {
+                    if (channelList.isFocused()) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView1.setClickable(true);
+                                textView2.setClickable(true);
+                                textView1.setFocusable(true);
+                                textView2.setFocusable(true);
+                            }
+                        });
+                    }
+                    Log.e("恢复现场线程消息", "线程已经死亡");
+                }
+            }.start();
+        } else {
+            textView1.setClickable(true);
+            textView2.setClickable(true);
+            textView1.setFocusable(true);
+            textView2.setFocusable(true);
         }
         return false;
     }
@@ -131,6 +186,4 @@ public class MainActivity extends AppCompatActivity {
         Log.e("消息", "setAdapter");
         homeMenuView.setAdapter(homeMenuAdapter);
     }
-
-
 }
