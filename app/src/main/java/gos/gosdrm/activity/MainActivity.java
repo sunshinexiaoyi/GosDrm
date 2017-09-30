@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
     }
 
-    /**重写返回键事件
+    /**lyx：重写返回键事件
      * getRepeatCount：重复次数，防止多次后退
      * 1、短按回到导航
      * 2、长按退出应用
@@ -54,26 +54,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         GridView homeMenuView = (GridView)findViewById(R.id.homeMenu);
-        //短按返回导航栏
+        //lyx：短按返回导航栏
         if ((keyCode == KeyEvent.KEYCODE_BACK) && (event.getRepeatCount() == 0)) {
             Log.e("消息", "短按返回键，焦点需要无条件回到导航栏");
             homeMenuView.requestFocus();
             return false;
         }
-        //长按退出应用
+        //lyx：长按退出应用
         if ((keyCode == KeyEvent.KEYCODE_BACK) && (event.getRepeatCount() != 0)) {
             Log.e("消息", "长按返回键，需要退出程序");
             finish();
             return false;
         }
-        //向下回到导航栏
+        //lyx：向下回到导航栏
         View videoView = findViewById(R.id.live_videoView);
         if ((videoView != null) && (videoView.isFocused()) && (keyCode == KeyEvent.KEYCODE_DPAD_DOWN)) {
             Log.e("消息", "焦点需要从播放器回到导航栏");
             homeMenuView.requestFocus();
         }
 
-        /**
+        /**lyx：
          * 频道列表有内容时，立即禁止TextView允许获得焦点和点击，完成跳转到列表后恢复现场
          * 当频道列表为空时，不取消源选择的焦点和点击
          */
@@ -84,7 +84,9 @@ public class MainActivity extends AppCompatActivity {
         Log.e("消息", "textView1是否为空：" + (textView1 == null));
         Log.e("消息", "textView2是否为空：" + (textView2 == null));
 
-        //当按键指令输入太快时，会由于View还未加载完成，但已经执行了按键指令，导致产生空对象textView，空对象调用方法从而报错
+        /**fcx：
+         * 当按键指令输入太快时，会由于View还未加载完成，但已经执行了按键指令，导致产生空对象textView，空对象调用方法从而报错
+         */
         if (textView1 != null) {
             if ((videoView != null) && (videoView.isFocused())
                     && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && (!isChannelEmpty)) {
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
                 channelList.requestFocus();//频道列表请求夺取焦点
 
-                /**
+                /**lyx：
                  * 猜测原因：当方法返回后，系统才进行焦点改变处理，所以不能在此方法返回前就恢复现场
                  * 线程的启动和数据处理需要时间，所以方法内的返回语句要先于线程中的逻辑实现被执行，因而能达到目的
                  */
