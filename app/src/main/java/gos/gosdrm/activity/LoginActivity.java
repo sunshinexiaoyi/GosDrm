@@ -13,6 +13,7 @@ import gos.gosdrm.R;
 public class LoginActivity extends AppCompatActivity {
 
     private Button login;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +29,22 @@ public class LoginActivity extends AppCompatActivity {
 //        ActionBar actionBar = getSupportActionBar();
 //        actionBar.hide();
 
-        login = (Button) findViewById(R.id.login);
+        login = (Button) findViewById(R.id.login_btn);
+
+        //获取按钮焦点
+        login.setOnFocusChangeListener(new Button.OnFocusChangeListener(){
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                // TODO Auto-generated method stub
+                if(hasFocus == true) {
+                    login.setBackgroundResource(R.drawable.login_chosen_pressed);
+
+                }else{
+                    login.setBackgroundResource(R.drawable.login_chosen_unpress);
+                }
+            }
+        });
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

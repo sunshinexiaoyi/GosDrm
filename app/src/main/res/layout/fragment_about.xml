@@ -45,11 +45,10 @@
         app:layout_constraintLeft_toLeftOf="@+id/gl_v_1"
         app:layout_constraintRight_toLeftOf="@+id/gl_v_2"
         app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center"
         android:text="@string/about_edition"
         android:textColor="#FFFFFF"
         android:textSize="12sp"
-        android:drawableTop="@drawable/ic_launcher"
+        android:drawableTop="@drawable/about_logo"
         app:layout_constraintVertical_bias="0.7" />
 
     <ListView
@@ -58,6 +57,7 @@
         android:layout_height="0dp"
         android:dividerHeight="4dp"
         android:divider="#00000000"
+        android:paddingLeft="140dp"
         app:layout_constraintBottom_toTopOf="@+id/gl_h_2"
         app:layout_constraintTop_toBottomOf="@+id/gl_h_1"
         app:layout_constraintLeft_toRightOf="@+id/gl_v_1"
