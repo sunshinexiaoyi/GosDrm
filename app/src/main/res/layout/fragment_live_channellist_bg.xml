@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="horizontal">
+
         <!--搜索框-->
         <TextView
             android:id="@+id/live_importNet"
@@ -19,7 +20,7 @@
             android:textColor="@color/white"
             android:textStyle="bold"
             android:gravity="center"
-            android:background="@drawable/bg_view"
+            android:background="@drawable/live_channel_source"
             android:layout_weight="1"
             android:layout_width="25dp"
             android:layout_height="25dp"
@@ -32,7 +33,7 @@
             android:textColor="@color/white"
             android:textStyle="bold"
             android:gravity="center"
-            android:background="@drawable/bg_view"
+            android:background="@drawable/live_channel_source"
             android:layout_weight="1"
             android:layout_width="25dp"
             android:layout_height="25dp"
@@ -44,7 +45,7 @@
         android:id = "@+id/live_channelList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:listSelector="@drawable/live_channel"
+        android:listSelector="@drawable/live_channel_selector"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:paddingTop="15dp"

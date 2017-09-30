@@ -12,19 +12,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.EventLog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
-import android.widget.VideoView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -37,10 +31,9 @@ public class MainActivity extends AppCompatActivity {
     public static boolean isChannelEmpty = true;//观察频道列表是否为空
     private Handler handler;//在捕获物理按键时的线程数据提交，以启动线程产生时间差使方法提前返回。
 
-    View channelList;
-    View textView1;
-    View textView2;
-
+    private View channelList;
+    private View textView1;
+    private View textView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
      * 1、短按回到导航
      * 2、长按退出应用
      * 3、向下可以回到导航栏
+     * 4、频道列表中无频道时，焦点被允许来到源选项
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -86,43 +80,54 @@ public class MainActivity extends AppCompatActivity {
         channelList = findViewById(R.id.live_channelList);
         textView1 = findViewById(R.id.live_importLocal);
         textView2 = findViewById(R.id.live_importNet);
-        if ((videoView != null) && (videoView.isFocused())
-                && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && (!isChannelEmpty)) {
-            Log.e("消息", "频道列表中有内容，焦点需要从播放器回到频道列表，立即禁止源选项允许获得焦点");
+        Log.e("消息", "channelList是否为空：" + (channelList == null));
+        Log.e("消息", "textView1是否为空：" + (textView1 == null));
+        Log.e("消息", "textView2是否为空：" + (textView2 == null));
 
-            textView1.setClickable(false);
-            textView2.setClickable(false);
-            textView1.setFocusable(false);
-            textView2.setFocusable(false);
+        //当按键指令输入太快时，会由于View还未加载完成，但已经执行了按键指令，导致产生空对象textView，空对象调用方法从而报错
+        if (textView1 != null) {
+            if ((videoView != null) && (videoView.isFocused())
+                    && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && (!isChannelEmpty)) {
+                Log.e("消息", "频道列表中有内容，焦点需要从播放器回到频道列表，立即禁止源选项允许获得焦点");
 
-            channelList.requestFocus();//频道列表请求夺取焦点
+                textView1.setClickable(false);
+                textView2.setClickable(false);
+                textView1.setFocusable(false);
+                textView2.setFocusable(false);
 
-            /**
-             * 猜测原因：当方法返回后，系统才进行焦点改变处理，所以不能在此方法返回前就恢复现场
-             * 线程的启动和数据处理需要时间，所以方法内的返回语句要先于线程中的逻辑实现被执行，因而能达到目的
-             */
-            handler = new Handler();
-            new Thread() {
-                public void run() {
-                    if (channelList.isFocused()) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView1.setClickable(true);
-                                textView2.setClickable(true);
-                                textView1.setFocusable(true);
-                                textView2.setFocusable(true);
-                            }
-                        });
+                channelList.requestFocus();//频道列表请求夺取焦点
+
+                /**
+                 * 猜测原因：当方法返回后，系统才进行焦点改变处理，所以不能在此方法返回前就恢复现场
+                 * 线程的启动和数据处理需要时间，所以方法内的返回语句要先于线程中的逻辑实现被执行，因而能达到目的
+                 */
+                handler = new Handler();
+                new Thread() {
+                    boolean foldIt;
+                    public void run() {
+                        if (channelList.isFocused()) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textView1.setClickable(true);
+                                    textView2.setClickable(true);
+                                    textView1.setFocusable(true);
+                                    textView2.setFocusable(true);
+                                }
+                            });
+                        }
+                        Log.e("恢复现场线程消息", "线程已经死亡");
                     }
-                    Log.e("恢复现场线程消息", "线程已经死亡");
-                }
-            }.start();
+                }.start();
+
+            } else {
+                textView1.setClickable(true);
+                textView2.setClickable(true);
+                textView1.setFocusable(true);
+                textView2.setFocusable(true);
+            }
         } else {
-            textView1.setClickable(true);
-            textView2.setClickable(true);
-            textView1.setFocusable(true);
-            textView2.setFocusable(true);
+            Log.e("消息", "View未加载，放弃本次指令执行");
         }
         return false;
     }
@@ -141,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(option);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-        ActionBar actionBar = getSupportActionBar();
+        //ActionBar actionBar = getSupportActionBar();
         //actionBar.hide();
     }
 

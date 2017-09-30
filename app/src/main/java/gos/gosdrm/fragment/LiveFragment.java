@@ -14,7 +14,6 @@ import jxl.read.biff.BiffException;
 import okhttp3.Request;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,19 +25,15 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.MediaController;
 import android.widget.TextClock;
 import android.text.format.DateFormat;
 import android.content.BroadcastReceiver;
@@ -255,7 +250,6 @@ public class LiveFragment extends Fragment{
         mVideoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int curTime = mVideoView.getCurrentPosition();//得到播放的进度
                 startFullPlay(formatUrl(channel));
             }
         });

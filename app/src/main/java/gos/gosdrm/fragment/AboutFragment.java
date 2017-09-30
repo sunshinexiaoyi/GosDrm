@@ -1,7 +1,5 @@
 package gos.gosdrm.fragment;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,7 +15,6 @@ import java.util.List;
 
 import gos.gosdrm.R;
 import gos.gosdrm.adapter.ReuseAdapter;
-import gos.gosdrm.define.GOSKeyCode;
 
 
 public class AboutFragment extends Fragment {

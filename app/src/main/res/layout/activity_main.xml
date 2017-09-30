@@ -4,21 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
+    android:background="@drawable/global_bg"
     tools:context="gos.gosdrm.activity.MainActivity">
 
     <!--第一行-->
     <LinearLayout
-        android:id = "@+id/live_toolbar"
+        android:id="@+id/live_toolbar"
         android:layout_width="0dp"
         android:layout_height="60dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
         android:baselineAligned="false"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="10dp"
-        tools:layout_editor_absoluteX="0dp">
-    <!--控制搜索框居中-->
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <!--控制搜索框居中-->
         <View
             android:layout_width="0dp"
             android:layout_height="40dp"
@@ -30,47 +33,49 @@
         <!--时间-->
         <TextClock
             android:id="@+id/live_time"
-            android:format24Hour="@string/formatTime"
-            android:textColor="@color/white"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="3.2"
+            android:format24Hour="@string/formatTime"
             android:gravity="right|center_vertical"
+            android:textColor="@color/white"
             android:textSize="@dimen/live_timeText" />
         <!--日期-->
         <LinearLayout
-            android:layout_weight="2"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_weight="2"
             android:orientation="vertical">
+
             <TextClock
                 android:id="@+id/live_week"
-                android:textColor="@color/white"
-                android:textSize="@dimen/live_weekText"
-                android:format24Hour="@string/formatWeek"
-                android:layout_width = "match_parent"
+                android:layout_width="match_parent"
                 android:layout_height="20dp"
-                android:gravity = "left|center_vertical|bottom"
-                android:paddingLeft="4dp"/>
+                android:format24Hour="@string/formatWeek"
+                android:gravity="left|center_vertical|bottom"
+                android:paddingLeft="4dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/live_weekText" />
+
             <TextClock
                 android:id="@+id/live_date"
-                android:textColor="@color/white"
-                android:textSize="@dimen/live_dateText"
-                android:format24Hour="@string/formatDate"
-                android:layout_width = "match_parent"
+                android:layout_width="match_parent"
                 android:layout_height="20dp"
-                android:gravity = "left|center|top"
-                android:paddingLeft="4dp"/>
+                android:format24Hour="@string/formatDate"
+                android:gravity="left|center|top"
+                android:paddingLeft="4dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/live_dateText" />
         </LinearLayout>
 
         <!--WLAN图标-->
         <ImageView
             android:id="@+id/live_wlan"
-            android:src="@drawable/live_wlan_disconnect"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_marginRight="55dp"
             android:layout_weight="0.5"
-            android:layout_marginRight="55dp"/>
+            android:src="@drawable/live_wlan_connected" />
     </LinearLayout>
 
     <FrameLayout
@@ -109,7 +114,7 @@
                 android:layout_height="@dimen/home_menu_height"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:listSelector="@drawable/chose_fm"
+                android:listSelector="@drawable/menu_chose_fm"
                 android:numColumns="4">
             </GridView>
         </LinearLayout>

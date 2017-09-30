@@ -13,7 +13,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:background="@drawable/bg_view" />
+        android:background="@drawable/live_channel_source" />
 
     <!--底部的工具条，包括播放/暂停按钮，进度条，已用/总时间，全屏按钮-->
     <!--<LinearLayout-->
