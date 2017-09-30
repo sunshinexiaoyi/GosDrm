@@ -25,8 +25,6 @@ public class LoginActivity extends AppCompatActivity {
     private SharedHelper sh;
     private Context mContext;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
         sh = new SharedHelper(mContext);
         bindViews();
         initState();
-
     }
 
     private void bindViews() {
@@ -45,19 +42,21 @@ public class LoginActivity extends AppCompatActivity {
 
         //获取按钮焦点
         login.setOnFocusChangeListener(new Button.OnFocusChangeListener(){
+            boolean foldIt;
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 // TODO Auto-generated method stub
                 if(hasFocus == true) {
-                    login.setBackgroundResource(R.drawable.login_chosen_pr);
+                    login.setBackgroundResource(R.drawable.login_chosen_pressed);
 
                 }else{
-                    login.setBackgroundResource(R.drawable.login_btn_bg);
+                    login.setBackgroundResource(R.drawable.global_item_null);
                 }
             }
         });
 
         login.setOnClickListener(new View.OnClickListener() {
+            boolean foldIt;
             @Override
             public void onClick(View view) {
                 strname = editname.getText().toString();
@@ -67,7 +66,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     @Override
@@ -86,6 +84,5 @@ public class LoginActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(option);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-
     }
 }

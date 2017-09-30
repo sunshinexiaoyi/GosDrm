@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--直播-->
     <dimen name="live_timeText">30sp</dimen>
     <dimen name="live_dateText">10sp</dimen>
     <dimen name="live_weekText">10sp</dimen>
     <dimen name="live_itemText">20sp</dimen>
-    <dimen name="live_epg_progNameText">22sp</dimen>
-    <dimen name="live_epg_proginfoText">12sp</dimen>
+
+    <!--首页-->
     <dimen name="home_menuText">22sp</dimen>
     <dimen name="home_menu_height">60dp</dimen>
+
+    <!--设置-->
+    <dimen name="setting_title">30sp</dimen>
+    <dimen name="setting_changeUser">20sp</dimen>
+    <dimen name="setting_channelSource">20sp</dimen>
 
 </resources>

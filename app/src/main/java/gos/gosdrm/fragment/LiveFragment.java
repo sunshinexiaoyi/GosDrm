@@ -1,7 +1,20 @@
 package gos.gosdrm.fragment;
 
+import gos.gosdrm.R;
+import gos.gosdrm.activity.MainActivity;
+import gos.gosdrm.adapter.ReuseAdapter;
+import gos.gosdrm.data.Channel;
+import gos.gosdrm.data.CustomVideoView;
+import gos.gosdrm.data.PageInfo;
+import gos.gosdrm.data.Return;
+import gos.gosdrm.tool.HttpUtils;
+import gos.gosdrm.tool.SharedHelper;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
+import okhttp3.Request;
+
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,7 +28,6 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +36,8 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextClock;
+import android.text.format.DateFormat;
+import android.content.BroadcastReceiver;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,21 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-
-import gos.gosdrm.R;
-import gos.gosdrm.activity.MainActivity;
-import gos.gosdrm.adapter.ReuseAdapter;
-import gos.gosdrm.data.Channel;
-import gos.gosdrm.data.CustomVideoView;
-import gos.gosdrm.data.PageInfo;
-import gos.gosdrm.data.Return;
-import gos.gosdrm.tool.HttpUtils;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
-import okhttp3.Request;
-
-import static gos.gosdrm.define.PlayerUrl.channelRequestUrl;
+import static  gos.gosdrm.define.PlayerUrl.*;
 
 public class LiveFragment extends Fragment{
     private final String TAG = getClass().getSimpleName();
@@ -55,13 +55,13 @@ public class LiveFragment extends Fragment{
     private WlanReceiver wlanReceiver;//监听WLAN状态
     private View view;
 
-    HttpUtils httpUtils = HttpUtils.getInstance();  //获取http实例
+    private HttpUtils httpUtils = HttpUtils.getInstance();  //获取http实例
 
     private ReuseAdapter<Channel> channelAdapter;
     private ListView channelListView;   //频道listView
     private int channelCounter = 0;   //获取频道列表失败计数器
 
-    public CustomVideoView mVideoView;//自定义VideoView，目前仅实现测量视频画面尺寸方法
+    private CustomVideoView mVideoView;//自定义VideoView，目前仅实现测量视频画面尺寸方法
 
     private boolean isMediaPause = false;//播放器是否被暂停
     private boolean isFileImport = false;//是否为文件导入
@@ -232,8 +232,22 @@ public class LiveFragment extends Fragment{
         initWifi();
         setTime(view);//初始化时间
 
-       //getAllChannelByFile();//默认从文件中导入
-        getAllChannel();//默认从网络导入
+        /**lyx：
+         * 默认频道源自动切换
+         * 同时强迫列表背景跟随
+         */
+
+        View channelListBg = view.findViewById(R.id.live_CHANNELLIST);//得到频道列表view
+        SharedHelper sharedHelper = new SharedHelper(getActivity());
+        if (sharedHelper.get("autoResource").equals("0")) {
+            channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importnet);//强迫背景跟随
+            getAllChannel();//默认从网络导入
+        } else if (sharedHelper.get("autoResource").equals("1")) {
+            channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//强迫背景跟随
+            getAllChannelByFile();//默认从文件中导入
+        } else {
+            Log.e("消息", "频道源读取异常");
+        }
     }
 
     //初始化播放器
@@ -251,6 +265,7 @@ public class LiveFragment extends Fragment{
         mVideoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int curTime = mVideoView.getCurrentPosition();//得到播放的进度
                 startFullPlay(formatUrl(channel));
             }
         });

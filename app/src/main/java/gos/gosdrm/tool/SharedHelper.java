@@ -17,6 +17,8 @@ public class SharedHelper {
     public SharedHelper(Context mContext) {
         sp = mContext.getSharedPreferences(mContext.getResources().getString(R.string.file_name), Context.MODE_PRIVATE);
         this.mContext = mContext;
+        SharedPreferences.Editor editor = sp.edit();//添加频道源类型
+        editor.putString("autoResource", "0");
     }
 
     //定义一个保存数据的方法
@@ -35,6 +37,7 @@ public class SharedHelper {
         return data;
     }
 
+    //删除数据
     public void del() {
         String editname;
         String editpasswd;
@@ -54,5 +57,23 @@ public class SharedHelper {
 
             Log.e("清空后的用户名为","name:"+editname);
         }
+    }
+
+    //添加一个数据对
+    public void add(String key, String data) {
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(key, data);
+        editor.apply();
+    }
+
+    //读取一个数据对
+    public String get(String key) {
+        return sp.getString(key, "");
+    }
+
+    public void change(String key, String data) {
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(key, data);
+        editor.apply();
     }
 }

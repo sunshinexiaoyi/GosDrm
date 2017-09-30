@@ -44,7 +44,7 @@
         android:id = "@+id/live_channelList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:listSelector="@drawable/live_channel"
+        android:listSelector="@drawable/live_channel_selector"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:paddingTop="15dp"
