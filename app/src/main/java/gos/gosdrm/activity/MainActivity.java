@@ -32,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler;//在捕获物理按键时的线程数据提交，以启动线程产生时间差使方法提前返回。
 
     private View channelList;
-    private View textView1;
-    private View textView2;
+    private View importLocal;
+    private View importNet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,24 +78,25 @@ public class MainActivity extends AppCompatActivity {
          * 当频道列表为空时，不取消源选择的焦点和点击
          */
         channelList = findViewById(R.id.live_channelList);
-        textView1 = findViewById(R.id.live_importLocal);
-        textView2 = findViewById(R.id.live_importNet);
+        importLocal = findViewById(R.id.live_importLocal);
+        importNet = findViewById(R.id.live_importNet);
         Log.e("消息", "channelList是否为空：" + (channelList == null));
-        Log.e("消息", "textView1是否为空：" + (textView1 == null));
-        Log.e("消息", "textView2是否为空：" + (textView2 == null));
+        Log.e("消息", "importLocal是否为空：" + (importLocal == null));
+        Log.e("消息", "importNet是否为空：" + (importNet == null));
 
-        /**fcx：
-         * 当按键指令输入太快时，会由于View还未加载完成，但已经执行了按键指令，导致产生空对象textView，空对象调用方法从而报错
+        /**
+         * fcx：当按键指令输入太快时，会由于View还未加载完成，但已经执行了按键指令，导致产生空对象textView，空对象调用方法从而报错
+         * 解决方案：当textView为空对象时，放弃按键指令
          */
-        if (textView1 != null) {
+        if (importLocal != null) {
             if ((videoView != null) && (videoView.isFocused())
                     && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && (!isChannelEmpty)) {
                 Log.e("消息", "频道列表中有内容，焦点需要从播放器回到频道列表，立即禁止源选项允许获得焦点");
 
-                textView1.setClickable(false);
-                textView2.setClickable(false);
-                textView1.setFocusable(false);
-                textView2.setFocusable(false);
+                importLocal.setClickable(false);
+                importNet.setClickable(false);
+                importLocal.setFocusable(false);
+                importNet.setFocusable(false);
 
                 channelList.requestFocus();//频道列表请求夺取焦点
 
@@ -111,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    textView1.setClickable(true);
-                                    textView2.setClickable(true);
-                                    textView1.setFocusable(true);
-                                    textView2.setFocusable(true);
+                                    importLocal.setClickable(true);
+                                    importNet.setClickable(true);
+                                    importLocal.setFocusable(true);
+                                    importNet.setFocusable(true);
                                 }
                             });
                         }
@@ -123,10 +124,10 @@ public class MainActivity extends AppCompatActivity {
                 }.start();
 
             } else {
-                textView1.setClickable(true);
-                textView2.setClickable(true);
-                textView1.setFocusable(true);
-                textView2.setFocusable(true);
+                importLocal.setClickable(true);
+                importNet.setClickable(true);
+                importLocal.setFocusable(true);
+                importNet.setFocusable(true);
             }
         } else {
             Log.e("消息", "View未加载，放弃本次指令执行");
@@ -148,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(option);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.hide();
     }
 
     private void initHomeMenu(){
@@ -177,12 +176,10 @@ public class MainActivity extends AppCompatActivity {
                 curFragment = homeMenuAdapter.getItem(position).getFragment();
 
                 if(curFragment.isAdded()){
-                    fragmentManager.beginTransaction().show(curFragment)
-                            .commit();//启动了碎片
+                    fragmentManager.beginTransaction().show(curFragment).commit();//启动了碎片
                    return;
                 }
-                fragmentManager.beginTransaction().add(R.id.homeContent, curFragment)
-                        .commit();//启动了碎片
+                fragmentManager.beginTransaction().add(R.id.homeContent, curFragment).commit();//启动了碎片
                 Log.e("消息", "启动碎片成功");
             }
 
