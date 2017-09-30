@@ -7,14 +7,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import gos.gosdrm.R;
 
 public class LoginActivity extends AppCompatActivity {
 
     private Button login;
-    private EditText text;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
 //        actionBar.hide();
 
 
-        login = (Button) findViewById(R.id.login);
+        login = (Button) findViewById(R.id.login_btn);
 
         //获取按钮焦点
         login.setOnFocusChangeListener(new Button.OnFocusChangeListener(){

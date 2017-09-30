@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
+    android:background="@drawable/global_bg"
     tools:context="gos.gosdrm.activity.MainActivity">
 
     <!--第一行-->
@@ -109,7 +109,7 @@
                 android:layout_height="@dimen/home_menu_height"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:listSelector="@drawable/chose_fm"
+                android:listSelector="@drawable/menu_chose_fm"
                 android:numColumns="4">
             </GridView>
         </LinearLayout>
