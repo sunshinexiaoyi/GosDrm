@@ -10,10 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.Map;
-
 import gos.gosdrm.R;
-import gos.gosdrm.tool.SharedHelper;
+import gos.gosdrm.data.User;
+import gos.gosdrm.db.SharedDb;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -22,17 +21,17 @@ public class LoginActivity extends AppCompatActivity {
     private Button login;
     private String strname;
     private String strpasswd;
-    private SharedHelper sh;
-    private Context mContext;
+    private SharedDb sharedDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mContext = getApplicationContext();
-        sh = new SharedHelper(mContext);
+        sharedDb = SharedDb.getInstance(this);
+
         bindViews();
         initState();
+        initData();
     }
 
     private void bindViews() {
@@ -40,41 +39,19 @@ public class LoginActivity extends AppCompatActivity {
         editpasswd = (EditText)findViewById(R.id.login_password);
         login = (Button)findViewById(R.id.login_btn);
 
-        //获取按钮焦点
-        login.setOnFocusChangeListener(new Button.OnFocusChangeListener(){
-            boolean foldIt;
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                // TODO Auto-generated method stub
-                if(hasFocus) {
-                    login.setBackgroundResource(R.drawable.login_chosen_pressed);
-
-                }else{
-                    login.setBackgroundResource(R.drawable.global_item_null);
-                }
-            }
-        });
-
         login.setOnClickListener(new View.OnClickListener() {
-            boolean foldIt;
             @Override
             public void onClick(View view) {
                 strname = editname.getText().toString();
                 strpasswd = editpasswd.getText().toString();
-                sh.save(strname,strpasswd);
+                sharedDb.setUser(new User(strname,strpasswd));
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Map<String,String> data = sh.read();
-        editname.setText(data.get("username"));
-        editpasswd.setText(data.get("passwd"));
-    }
     //沉浸式标题栏
     private void initState() {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -85,4 +62,11 @@ public class LoginActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
     }
+
+    private void initData(){
+        User user = sharedDb.getUser();
+        editname.setText(user.getName());
+        editpasswd.setText(user.getPassword());
+    }
 }
+

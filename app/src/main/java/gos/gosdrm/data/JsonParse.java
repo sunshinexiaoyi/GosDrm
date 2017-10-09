@@ -10,4 +10,11 @@ public class JsonParse {
     public  static ProgramRet getProgramRet(String jsonStr){
         return JSON.parseObject(jsonStr,ProgramRet.class);
     }
+
+    public static User getUser(String jsonStr){
+        return JSON.parseObject(jsonStr,User.class);
+    }
+
+
+
 }

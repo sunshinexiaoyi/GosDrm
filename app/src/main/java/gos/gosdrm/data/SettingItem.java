@@ -5,25 +5,37 @@ package gos.gosdrm.data;
  */
 
 public class SettingItem {
+    private int nameId;
     private int logoImgId;
-    private String itemName;
+    private Class<?> activity;
 
-    public SettingItem(int logoImgId, String itemName) {
+    public SettingItem(int nameId, int logoImgId, Class<?> activity) {
+        this.nameId = nameId;
         this.logoImgId = logoImgId;
-        this.itemName = itemName;
+        this.activity = activity;
     }
 
-    public void setLogoImgId(int logoImgId) {
-        this.logoImgId = logoImgId;
+    public int getNameId() {
+        return nameId;
     }
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
+
+    public void setNameId(int nameId) {
+        this.nameId = nameId;
     }
 
     public int getLogoImgId() {
         return logoImgId;
     }
-    public String getItemName() {
-        return itemName;
+
+    public void setLogoImgId(int logoImgId) {
+        this.logoImgId = logoImgId;
+    }
+
+    public Class<?> getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Class<?> activity) {
+        this.activity = activity;
     }
 }

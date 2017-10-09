@@ -2,7 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id = "@+id/main_MAIN"
+    android:id = "@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/global_bg"
@@ -15,7 +15,9 @@
         android:layout_height="60dp"
         android:baselineAligned="false"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="30dp">
     <!--控制搜索框居中-->
         <View
             android:layout_width="0dp"

@@ -10,17 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import gos.gosdrm.R;
-import gos.gosdrm.activity.Setting_autoResActivity;
-import gos.gosdrm.activity.Setting_changeBgActivity;
+import gos.gosdrm.activity.SetSourceActivity;
+import gos.gosdrm.activity.SetThemeActivity;
 import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.SettingItem;
-import gos.gosdrm.tool.SharedHelper;
 
 /**
  * 这里只需要完成两个目的
@@ -30,7 +28,6 @@ import gos.gosdrm.tool.SharedHelper;
 public class SettingFragment extends Fragment {
     private View view;
     private ListView settingListView;
-    private SharedHelper sharedHelper;
     private Handler handler;//自动辅助线程：自动模拟用户操作，查看现象
 
     @Override
@@ -49,12 +46,12 @@ public class SettingFragment extends Fragment {
 
     private void init_view() {
         ArrayList<SettingItem> settingItem = new ArrayList<>();
-        settingItem.add(new SettingItem(R.drawable.setting_channel_resource, "默认频道源"));
-        settingItem.add(new SettingItem(R.drawable.setting_changebg, "背景主题"));
-        settingItem.add(new SettingItem(R.drawable.setting_changeuser, "切换账户"));
-        settingItem.add(new SettingItem(R.drawable.setting_drmcounter, "授权次数"));
+        settingItem.add(new SettingItem(R.string.setting_item_autoSource,R.drawable.setting_channel_resource,SetSourceActivity.class ));
+        settingItem.add(new SettingItem(R.string.setting_item_theme,R.drawable.setting_changebg, SetThemeActivity.class));
+        settingItem.add(new SettingItem(R.string.setting_item_changeUser,R.drawable.setting_changeuser,null));
+        settingItem.add(new SettingItem(R.string.setting_item_authorizationTimes,R.drawable.setting_drmcounter,null));
 
-       settingListView = (ListView)view.findViewById(R.id.setting_listView);
+        settingListView =view.findViewById(R.id.setting_listView);
 
         /**初始化适配器
          * 这里可能没考虑item数据被复用的情况？
@@ -63,92 +60,44 @@ public class SettingFragment extends Fragment {
             @Override
             public void bindView(Holder holder, SettingItem obj) {
                 //设置item的填充数据
-                holder.setText(R.id.setting_itemName, obj.getItemName());
+                holder.setText(R.id.setting_itemName, obj.getNameId());
                 holder.setImageResource(R.id.setting_itemLogo, obj.getLogoImgId());
 
                 //监听设置项的选择
-                holder.setItemSelectListener(settingListView, new AdapterView.OnItemSelectedListener() {
-                    int autoSelected = 0;
+                holder.setItemOnClickListener(settingListView, new AdapterView.OnItemClickListener() {
+                    boolean foldIt;
                     @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
-                        Log.e("消息", "启动第" + pos + "个设置项ACT");
-                        switch (pos) {
-                            case 0: {
-                                if (autoSelected == 0) {
-                                    autoSelected++;
-                                    break;
-                                }
-                                startActivity(new Intent(getActivity(), Setting_autoResActivity.class));
-                                break;
-                            }
-                            case 1: {
-                                startActivity(new Intent(getActivity(), Setting_changeBgActivity.class));
-                                break;
-                            }
-                            case 2: {
-                                //startActivity(new Intent(getActivity(), Setting_changeUserActivity.class));
-                                changeUser();//切换用户（回到登陆界面）
-                                break;
-                            }
-                            case 3: {
-                                //startActivity(new Intent(getActivity(), Setting_drmCounterActivity.class));
-                                Toast.makeText(getActivity(), "暂未加入drm授权次数记录", Toast.LENGTH_SHORT).show();
-                                break;
-                            }
-                            default: {
-                                Log.e("消息", "发现异常选择");
-                                break;
-                            }
+                    public void onItemClick(AdapterView adapterView, View view, int pos, long l) {
+                        Class startActivity =  getItem(pos).getActivity();
+                        if(null != startActivity){
+                            startActivity(new Intent(getContext(),startActivity));
+                        }
+
+                        if (pos == 2) {
+                            changeUser();
+                        } else if (pos == 3) {
+                            drmCounter();
                         }
                     }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> adapterView) {}
                 });
-
-//                holder.setItemOnClickListener(settingListView, new AdapterView.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(AdapterView adapterView, View view, int pos, long l) {
-//                        Log.e("消息", "启动第" + pos + "个设置项ACT");
-//                        switch (pos) {
-//                            case 0: {
-//                                startActivity(new Intent(getActivity(), Setting_autoResActivity.class));
-//                                break;
-//                            }
-//                            case 1: {
-//                                startActivity(new Intent(getActivity(), Setting_changeBgActivity.class));
-//                                break;
-//                            }
-//                            case 2: {
-//                                //startActivity(new Intent(getActivity(), Setting_changeUserActivity.class));
-//                                changeUser();//切换用户（回到登陆界面）
-//                                break;
-//                            }
-//                            case 3: {
-//                                //startActivity(new Intent(getActivity(), Setting_drmCounterActivity.class));
-//                                Toast.makeText(getActivity(), "暂未加入drm授权次数记录", Toast.LENGTH_SHORT).show();
-//                                break;
-//                            }
-//                            default: {
-//                                Log.e("消息", "发现异常选择");
-//                                break;
-//                            }
-//                        }
-//                    }
-//                });
             }
         };
 
         settingListView.setAdapter(settingAdapter);
-        settingListView.requestFocus();
+        settingListView.requestFocus();//使得切换到设置页面时焦点来到设置项上
         Log.e("消息", "设置项列表初始化完成");
     }
 
     //切换用户
     private void changeUser() {
-        sharedHelper = new SharedHelper(getActivity());
         Log.e("消息", "切换用户");
-        sharedHelper.del();//删除
         Toast.makeText(getActivity(), "重新登陆", Toast.LENGTH_SHORT).show();//吐司提示
         getActivity().finish();//结束ACT回到登陆界面
+    }
+
+    //授权设置
+    private void drmCounter() {
+        Log.e("消息", "授权设置");
+        Toast.makeText(getActivity(), "未完成授权记录功能", Toast.LENGTH_SHORT).show();//吐司提示
     }
 }

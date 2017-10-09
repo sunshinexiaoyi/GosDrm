@@ -4,9 +4,8 @@
     android:layout_width = "match_parent"
     android:layout_height = "match_parent"
     android:orientation="vertical"
-    android:layout_marginTop="@dimen/main_title"
-    android:layout_marginLeft="55dp"
-    android:layout_marginRight="55dp"
+    android:layout_gravity="center"
+    android:gravity="center"
     android:background="@drawable/global_bg">
     <!--网络源-->
     <RadioButton

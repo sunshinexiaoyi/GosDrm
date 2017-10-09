@@ -7,24 +7,20 @@ import gos.gosdrm.data.Channel;
 import gos.gosdrm.data.CustomVideoView;
 import gos.gosdrm.data.PageInfo;
 import gos.gosdrm.data.Return;
+import gos.gosdrm.data.SetSource;
+import gos.gosdrm.db.SharedDb;
 import gos.gosdrm.tool.HttpUtils;
-import gos.gosdrm.tool.SharedHelper;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import okhttp3.Request;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.MediaPlayer;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -33,11 +29,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextClock;
 import android.text.format.DateFormat;
-import android.content.BroadcastReceiver;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +62,8 @@ public class LiveFragment extends Fragment{
     private Channel channel;//频道
 
     private View layout;//频道导入类型变化强迫背景更换
+
+    private boolean fragmentHidden;//fragment是否隐藏
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -119,7 +115,7 @@ public class LiveFragment extends Fragment{
             public void onClick(View view) {
                 Log.e(TAG,"网络源导入");
                 layout.setBackgroundResource(R.drawable.live_channel_bg_importnet);//更改频道列表背景图
-                getAllChannel();
+                getAllChannelByNet();
             }
         });
     }
@@ -145,20 +141,28 @@ public class LiveFragment extends Fragment{
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
+        fragmentHidden = hidden;
         if(hidden){ //隐藏
-            Log.e(TAG,"onPause");
-            if(mVideoView.isPlaying()){
-                mVideoView.pause();
-                isMediaPause = true;
-                Log.e(TAG,"onPause --暂停播放器");
-            }
+            pauseMedia();
         }else { //显示
-            Log.e(TAG,"onResume");
-            if(isMediaPause){
-                Log.e(TAG,"onResume --开始播放器");
-                mVideoView.start();
-            }
+            resumeMedia();
         }
+    }
+
+    @Override
+    public void onPause() {
+        Log.e(TAG,"** onPause **");
+        pauseMedia();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        Log.e(TAG,"** onResume **");
+        if(!fragmentHidden){
+            resumeMedia();
+        }
+        super.onResume();
     }
 
     @Override
@@ -182,6 +186,7 @@ public class LiveFragment extends Fragment{
     }
 
     public void getAllChannelByFile() {
+        resetChannelListView(new ArrayList<Channel>());//重置
         channelAdapter.resetAll(importXlsFile());
         MainActivity.isChannelEmpty = channelAdapter.isEmpty() ? true : false;//保存列表内容状态
     }
@@ -241,15 +246,19 @@ public class LiveFragment extends Fragment{
          * 同时强迫列表背景跟随
          */
         View channelListBg = view.findViewById(R.id.live_CHANNELLIST);//得到频道列表view
-        SharedHelper sharedHelper = new SharedHelper(getActivity());
-        if (sharedHelper.get("autoResource").equals("0")) {
-            channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importnet);//强迫背景跟随
-            getAllChannel();//默认从网络导入
-        } else if (sharedHelper.get("autoResource").equals("1")) {
-            channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//强迫背景跟随
-            getAllChannelByFile();//默认从文件中导入
-        } else {
-            Log.e("消息", "频道源读取异常");
+        SharedDb sharedDb = SharedDb.getInstance(getActivity());
+        switch (sharedDb.getSetSource().getSource()){
+            case SetSource.NETWORK:
+                channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importnet);//强迫背景跟随
+                getAllChannelByNet();//默认从网络导入
+                break;
+            case SetSource.LOCAL:
+                channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//强迫背景跟随
+                getAllChannelByFile();//默认从文件中导入
+                break;
+            default:
+                Toast.makeText(getContext(), "设置默认频道源错误", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
@@ -304,7 +313,7 @@ public class LiveFragment extends Fragment{
                  * 到达频道列表末端处理：回到顶端
                  * 缺陷未处理：但长按的话会导致来不及处理而直接调到导航栏
                  */
-                Channel channel = channelAdapter.getItem(i);
+                channel = channelAdapter.getItem(i);
                 if (i == (adapterView.getCount() - 1)) {
                     Log.e("消息", "已经到达列表末端，返回最上端");
                     channelListView.setSelection(0);
@@ -322,10 +331,8 @@ public class LiveFragment extends Fragment{
 
         //点击 全屏播放
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            boolean foldIt;
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                channel = channelAdapter.getItem(i);
                 if(isFileImport){
                     startFullPlay(channel.getLiveUrl());
                 }else {
@@ -335,11 +342,11 @@ public class LiveFragment extends Fragment{
             }
         });
     }
+
     //url格式转换
     private String formatUrl(Channel channel){
         String urlFormat = "http://192.168.1.84:1935/live/_definst_/stream/%s.stream/playlist.m3u8";
         String url = (String.format(urlFormat,channel.getChannelName())).replaceAll(" ","");
-        Log.e(TAG,"url:"+url);
         return url;
     }
 
@@ -371,7 +378,9 @@ public class LiveFragment extends Fragment{
     }
 
     //获取所有频道
-    private void getAllChannel(){
+    private void getAllChannelByNet(){
+        resetChannelListView(new ArrayList<Channel>());//重置
+
         httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>() {
             ArrayList<Channel> channels;
             @Override
@@ -385,7 +394,7 @@ public class LiveFragment extends Fragment{
                 Log.e(TAG, "获取频道列表失败,错误信息："+e.getMessage());
                 if(++channelCounter < 3){
                     Log.e(TAG, "重新获取频道");
-                    getAllChannel();
+                    getAllChannelByNet();
                 }
             }
         });
@@ -442,5 +451,23 @@ public class LiveFragment extends Fragment{
             return channels;
         }
 
+    }
+
+
+    /*   播放器操作   */
+
+    private void pauseMedia(){
+        if(mVideoView.isPlaying()){
+            mVideoView.pause();
+            isMediaPause = true;
+            Log.e(TAG,"onPause --暂停播放器");
+        }
+    }
+
+    private void resumeMedia(){
+        if(isMediaPause){
+            Log.e(TAG,"onResume --开始播放器");
+            mVideoView.start();
+        }
     }
 }

@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:baselineAligned="false"
-    android:background="@drawable/live_bg">
+    android:baselineAligned="false">
     <!--播放器和正在播放的节目信息-->
     <LinearLayout
         android:layout_width="match_parent"

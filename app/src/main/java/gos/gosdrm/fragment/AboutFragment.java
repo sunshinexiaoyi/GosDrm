@@ -50,7 +50,7 @@ public class AboutFragment extends Fragment {
     }
 
     public void  initListview() {
-        mListview = view.findViewById(R.id.aus_listView);
+        mListview = view.findViewById(R.id.about_listView);
         listAdapter = new  ReuseAdapter<String>(getActivity(), R.layout.item_about_us) {
             @Override
             public void bindView(Holder holder, String obj) {

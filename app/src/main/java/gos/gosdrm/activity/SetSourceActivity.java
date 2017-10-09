@@ -7,20 +7,21 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import gos.gosdrm.R;
-import gos.gosdrm.tool.SharedHelper;
+import gos.gosdrm.data.SetSource;
+import gos.gosdrm.db.SharedDb;
 
 
 /**lyx：
  * 切换默认频道源的设置项ACT
  */
-public class Setting_autoResActivity extends AppCompatActivity {
-    private SharedHelper sharedHelper;
-    RadioGroup autoResource;
+public class SetSourceActivity extends AppCompatActivity {
+    private RadioGroup autoResource;
+    private SharedDb sharedDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setting_auto_res);
+        setContentView(R.layout.activity_set_source);
 
         init_view();//初始化单选组
 
@@ -28,15 +29,22 @@ public class Setting_autoResActivity extends AppCompatActivity {
     }
 
     private void init_view() {
-        sharedHelper = new SharedHelper(this);
+        sharedDb = SharedDb.getInstance(this);
 
         //检查上次的默认源类型
         autoResource = (RadioGroup)findViewById(R.id.setting_radioGroup);
-        if (sharedHelper.get("autoResource").equals("0")) {
-            autoResource.check(R.id.setting_netSource);
-        } else if (sharedHelper.get("autoResource").equals("1")){
-            autoResource.check(R.id.setting_localSource);
+        switch (sharedDb.getSetSource().getSource()){
+            case SetSource.NETWORK:
+                autoResource.check(R.id.setting_netSource);
+                break;
+            case SetSource.LOCAL:
+                autoResource.check(R.id.setting_localSource);
+                break;
+            default:
+                Toast.makeText(this, "设置默认频道源错误", Toast.LENGTH_SHORT).show();
+                break;
         }
+
     }
 
     private void init_listener() {
@@ -45,18 +53,21 @@ public class Setting_autoResActivity extends AppCompatActivity {
             //应该读取share中的保存类型，默认恢复选择
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkId) {
+                SetSource setSource = new SetSource();
                 if (checkId == R.id.setting_netSource) {
                     Log.e("消息", "设置网络为默认频道源");
-                    Toast.makeText(Setting_autoResActivity.this, "设置默认频道源为网络", Toast.LENGTH_SHORT).show();
-                    sharedHelper.change("autoResource", "0");
+                    Toast.makeText(SetSourceActivity.this, "设置默认频道源为网络", Toast.LENGTH_SHORT).show();
+                    setSource.setSource(SetSource.NETWORK);
                     finish();
 
                 } else if (checkId == R.id.setting_localSource) {
                     Log.e("消息", "设置本地为默认频道源");
-                    Toast.makeText(Setting_autoResActivity.this, "设置默认频道源为本地", Toast.LENGTH_SHORT).show();
-                    sharedHelper.change("autoResource", "1");
+                    Toast.makeText(SetSourceActivity.this, "设置默认频道源为本地", Toast.LENGTH_SHORT).show();
+                    setSource.setSource(SetSource.LOCAL);
                     finish();
                 }
+
+                sharedDb.setSetSource(setSource);
             }
         });
     }

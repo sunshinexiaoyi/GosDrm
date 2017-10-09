@@ -2,11 +2,13 @@ package gos.gosdrm.activity;
 import gos.gosdrm.R;
 import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.HomeMenuItem;
+import gos.gosdrm.data.SetSource;
+import gos.gosdrm.data.SetTheme;
+import gos.gosdrm.db.SharedDb;
 import gos.gosdrm.fragment.AboutFragment;
 import gos.gosdrm.fragment.HomeFragment;
 import gos.gosdrm.fragment.LiveFragment;
 import gos.gosdrm.fragment.SettingFragment;
-import gos.gosdrm.tool.SharedHelper;
 
 import android.graphics.Color;
 import android.os.Build;
@@ -20,9 +22,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -40,10 +39,18 @@ public class MainActivity extends AppCompatActivity {
     private View importLocal;
     private View importNet;
 
+    public static View mainLayout;
+
+    private long backTimePre = 0;   //上一次返回键的时间
+    private long backTimeCur = 0;   //当前返回键的时间
+
+    private long backInterval = 3000;//2次按返回键的间隔
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainLayout = findViewById(R.id.main_layout);
 
         fragmentManager = getSupportFragmentManager();//得到碎片对象
         initView();
@@ -63,7 +70,17 @@ public class MainActivity extends AppCompatActivity {
         //lyx：短按返回导航栏
         if ((keyCode == KeyEvent.KEYCODE_BACK) && (event.getRepeatCount() == 0)) {
             Log.e("消息", "短按返回键，焦点需要无条件回到导航栏");
-            homeMenuView.requestFocus();
+            if(homeMenuView.isFocused()){
+                backTimeCur =   System.currentTimeMillis();
+                if(backTimeCur - backTimePre < backInterval){
+                    finish();
+                }else {
+                    Toast.makeText(this, "再按返回键退出", Toast.LENGTH_SHORT).show();
+                    backTimePre = backTimeCur;
+                }
+            }else {
+                homeMenuView.requestFocus();
+            }
             return false;
         }
         //lyx：长按退出应用
@@ -74,10 +91,17 @@ public class MainActivity extends AppCompatActivity {
         }
         //lyx：向下回到导航栏
         View videoView = findViewById(R.id.live_videoView);
-        if ((videoView != null) && (videoView.isFocused()) && (keyCode == KeyEvent.KEYCODE_DPAD_DOWN)) {
-            Log.e("消息", "焦点需要从播放器回到导航栏");
-            homeMenuView.requestFocus();
+        View aboutView = findViewById(R.id.about_listView);
+
+        if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+            if(((videoView != null) && (videoView.isFocused()))
+            ||((aboutView != null) && (aboutView.isFocused())))
+            {
+                Log.e("消息", "焦点需要从播放器回到导航栏");
+                homeMenuView.requestFocus();
+            }
         }
+
 
         /**lyx：
          * 频道列表有内容时，立即禁止TextView允许获得焦点和点击，完成跳转到列表后恢复现场
@@ -183,20 +207,25 @@ public class MainActivity extends AppCompatActivity {
 
     //恢复选择的背景
     public void initBackgroundRes() {
-        SharedHelper sharedHelper = new SharedHelper(this);
-        View mainLayout = findViewById(R.id.main_MAIN);
-        if (sharedHelper.get("backgroundRes").equals("0")) {
-            Log.e("消息", "上次设置的背景是默认背景: 高斯贝尔");
-            mainLayout.setBackgroundResource(R.drawable.global_bg);
-        } else if (sharedHelper.get("backgroundRes").equals("1")) {
-            Log.e("消息", "上次设置的背景是默认背景: 酷黑");
-            mainLayout.setBackgroundResource(R.color.black);
-        } else {
-            Log.e("消息", "背景设置发生异常，恢复为默认背景");
-            Toast.makeText(this, "背景设置发生异常，恢复为默认背景", Toast.LENGTH_SHORT).show();
-            mainLayout.setBackgroundResource(R.drawable.global_bg);
-            sharedHelper.change("backgroundRes", "0");
+        SharedDb sharedDb = SharedDb.getInstance(this);
+
+        switch (sharedDb.getSetTheme().getTheme()){
+            case SetTheme.GOSPELL:
+                Log.e("消息", "上次设置的背景是默认背景: 高斯贝尔");
+                mainLayout.setBackgroundResource(R.drawable.global_bg);
+                break;
+            case SetTheme.BLACk:
+                Log.e("消息", "上次设置的背景是默认背景: 酷黑");
+                mainLayout.setBackgroundResource(R.drawable.global_bg_black);
+                break;
+            default:
+                Log.e("消息", "背景设置发生异常，恢复为默认背景");
+                Toast.makeText(this, "背景设置发生异常，恢复为默认背景", Toast.LENGTH_SHORT).show();
+                mainLayout.setBackgroundResource(R.drawable.global_bg);
+                sharedDb.setSetSource(new SetSource());
+                break;
         }
+
     }
 
     //导航栏

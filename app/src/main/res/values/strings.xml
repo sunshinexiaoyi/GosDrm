@@ -22,7 +22,13 @@
     <string name="setting_localSource">本地源</string>
     <string name="setting_netSource">网络源</string>
 
+    <string name="setting_item_autoSource">默认频道源</string>
+    <string name="setting_item_theme">背景主题</string>
+    <string name="setting_item_changeUser">切换账户</string>
+    <string name="setting_item_authorizationTimes">授权次数</string>
+
+
     <!--关于-->
     <string name="about_author">\@wildwolf\n2017</string>
-    <string name="about_edition">GosDrm 1.0.1</string>
+    <string name="version">GosDrm 1.0.1</string>
 </resources>
