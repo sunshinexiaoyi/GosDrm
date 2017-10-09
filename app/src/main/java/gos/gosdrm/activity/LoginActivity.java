@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 // TODO Auto-generated method stub
-                if(hasFocus == true) {
+                if(hasFocus) {
                     login.setBackgroundResource(R.drawable.login_chosen_pressed);
 
                 }else{

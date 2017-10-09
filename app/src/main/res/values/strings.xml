@@ -17,7 +17,7 @@
 
     <!--设置-->
     <string name="setting_changeuser">切换账户</string>
-    <string name="setting_title">爱好设置</string>
+    <string name="setting_title">喜好设置</string>
     <string name="setting_autoSource">默认频道源：</string>
     <string name="setting_localSource">本地源</string>
     <string name="setting_netSource">网络源</string>

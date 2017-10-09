@@ -52,7 +52,7 @@ import static  gos.gosdrm.define.PlayerUrl.*;
 public class LiveFragment extends Fragment{
     private final String TAG = getClass().getSimpleName();
 
-    private WlanReceiver wlanReceiver;//监听WLAN状态
+    //private WlanReceiver wlanReceiver;//监听WLAN状态
     private View view;
 
     private HttpUtils httpUtils = HttpUtils.getInstance();  //获取http实例
@@ -86,12 +86,12 @@ public class LiveFragment extends Fragment{
     }
 
     //初始化wifi
-    private void initWifi(){
-        wlanReceiver = new WlanReceiver();
-        IntentFilter itf = new IntentFilter();
-        itf.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);//无线状态
-        getActivity().registerReceiver(wlanReceiver, itf);//注册广播
-    }
+//    private void initWifi(){
+//        //wlanReceiver = new WlanReceiver();
+//        IntentFilter itf = new IntentFilter();
+//        itf.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);//无线状态
+//        getActivity().registerReceiver(wlanReceiver, itf);//注册广播
+//    }
 
     //初始化文件导入
     private void initImportFile(){
@@ -164,7 +164,7 @@ public class LiveFragment extends Fragment{
     @Override
     public void onDetach() {
         super.onDetach();
-        getActivity().unregisterReceiver(wlanReceiver);//取消WLAN广播捕获
+        //getActivity().unregisterReceiver(wlanReceiver);//取消WLAN广播捕获
     }
 
     //设置时间日期
@@ -187,38 +187,42 @@ public class LiveFragment extends Fragment{
     }
 
     //设置无线检测
-    public class WlanReceiver extends BroadcastReceiver {
-        private NetworkInfo networkInfo;
-        private ImageView imageView;
-        private WifiManager wifiManager;
-        private WifiInfo wifiInfo;
-        private boolean isConnected = false;//防止状态改变时过早检测断开与连接
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-
-                networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);//获取wlan状态
-                if (networkInfo.getState().equals(NetworkInfo.State.DISCONNECTED)) {
-                    if (isConnected == true) {
-                        Toast.makeText(getActivity(), "WLAN网络被断开", Toast.LENGTH_SHORT).show();//吐司wlan断开
-                        imageView = (ImageView) view.findViewById(R.id.live_wlan);
-                        imageView.setImageResource(R.drawable.live_wlan_disconnect);//改变图标状态
-                    }
-                    isConnected = false;
-
-                } else if (networkInfo.getState().equals(NetworkInfo.State.CONNECTED)) {
-                    if (isConnected == false) {
-                        wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                        wifiInfo = wifiManager.getConnectionInfo();
-                        Toast.makeText(getActivity(), "WLAN网络已连接：" + wifiInfo.getSSID(), Toast.LENGTH_SHORT).show();//吐司wlan断开
-                        imageView = (ImageView) view.findViewById(R.id.live_wlan);
-                        imageView.setImageResource(R.drawable.live_wlan_connected);//改变图标状态
-                    }
-                    isConnected = true;
-                }
-            }
-        }
-    }
+//    public class WlanReceiver extends BroadcastReceiver {
+//        private NetworkInfo networkInfo;
+//        private ImageView imageView;
+//        private WifiManager wifiManager;
+//        private WifiInfo wifiInfo;
+//        private boolean isConnected = false;//防止状态改变时过早检测断开与连接
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+//
+//                networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);//获取wlan状态
+//                if (networkInfo.getState().equals(NetworkInfo.State.DISCONNECTED)) {
+//                    if (isConnected == true) {
+//                        Toast.makeText(getActivity(), "WLAN网络被断开", Toast.LENGTH_SHORT).show();//吐司wlan断开
+//                        imageView = (ImageView) view.findViewById(R.id.live_wlan);
+//                        if (imageView != null) {
+//                            imageView.setImageResource(R.drawable.live_wlan_disconnect);//改变图标状态
+//                        }
+//                    }
+//                    isConnected = false;
+//
+//                } else if (networkInfo.getState().equals(NetworkInfo.State.CONNECTED)) {
+//                    if (isConnected == false) {
+//                        wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//                        wifiInfo = wifiManager.getConnectionInfo();
+//                        Toast.makeText(getActivity(), "WLAN网络已连接：" + wifiInfo.getSSID(), Toast.LENGTH_SHORT).show();//吐司wlan断开
+//                        imageView = (ImageView) view.findViewById(R.id.live_wlan);
+//                        if (imageView != null) {
+//                            imageView.setImageResource(R.drawable.live_wlan_connected);//改变图标状态
+//                        }
+//                    }
+//                    isConnected = true;
+//                }
+//            }
+//        }
+//    }
 
     private void initView(){
         initChannelView();
@@ -229,14 +233,13 @@ public class LiveFragment extends Fragment{
 
     //初始化集合
     private void initData() {
-        initWifi();
+        //initWifi();
         setTime(view);//初始化时间
 
         /**lyx：
          * 默认频道源自动切换
          * 同时强迫列表背景跟随
          */
-
         View channelListBg = view.findViewById(R.id.live_CHANNELLIST);//得到频道列表view
         SharedHelper sharedHelper = new SharedHelper(getActivity());
         if (sharedHelper.get("autoResource").equals("0")) {
@@ -380,13 +383,13 @@ public class LiveFragment extends Fragment{
             @Override
             public void failed(Request request, IOException e) {
                 Log.e(TAG, "获取频道列表失败,错误信息："+e.getMessage());
-                if(++channelCounter <3){
+                if(++channelCounter < 3){
                     Log.e(TAG, "重新获取频道");
                     getAllChannel();
                 }
             }
         });
-        MainActivity.isChannelEmpty = channelAdapter.isEmpty() ? true : false;//保存列表内容状态
+        MainActivity.isChannelEmpty = channelAdapter.isEmpty();//保存列表内容状态
     }
 
     /**

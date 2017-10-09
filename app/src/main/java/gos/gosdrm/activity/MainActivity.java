@@ -6,6 +6,7 @@ import gos.gosdrm.fragment.AboutFragment;
 import gos.gosdrm.fragment.HomeFragment;
 import gos.gosdrm.fragment.LiveFragment;
 import gos.gosdrm.fragment.SettingFragment;
+import gos.gosdrm.tool.SharedHelper;
 
 import android.graphics.Color;
 import android.os.Build;
@@ -19,7 +20,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -45,12 +49,13 @@ public class MainActivity extends AppCompatActivity {
         initView();
     }
 
-    /**lyx：重写返回键事件
+    /**lyx：重写按键事件
      * getRepeatCount：重复次数，防止多次后退
      * 1、短按回到导航
      * 2、长按退出应用
      * 3、向下可以回到导航栏
      * 4、频道列表中无频道时，焦点被允许来到源选项
+     * 5、设置模块中底栏的焦点变化要手动控制，自动焦点控制是回到距离导航栏相对位置处
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -133,23 +138,35 @@ public class MainActivity extends AppCompatActivity {
             Log.e("消息", "View未加载，放弃本次指令执行");
         }
 
-        /**修正设置中的焦点问题
-         * 1、焦点在本地源按钮时向右会导致焦点回到首页
-         * 2、向下时会来到首页
+//        /**lyx：由于底栏变成了授权次数，简化了逻辑修正
+//         * 修正设置中的焦点问题
+//         * 1、焦点在底栏按钮时向右会导致焦点回到首页
+//         * 2、向下时会来到首页
+//         */
+//        RadioButton autoBgBtn = (RadioButton)findViewById(R.id.setting_autoBg);
+//        RadioButton blackBgBtn = (RadioButton)findViewById(R.id.setting_blackBg);
+//        if ((blackBgBtn != null) &&
+//                ((blackBgBtn.isFocused() && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT))
+//                || (((keyCode == KeyEvent.KEYCODE_DPAD_DOWN) && (autoBgBtn.isFocused()||blackBgBtn.isFocused()))))) {
+//            homeMenuView.requestFocus();
+//        }
+
+        /**lyx：
+         * 只需要修正底栏的焦点改变
          */
-        RadioButton localResourceBtn = (RadioButton)findViewById(R.id.setting_localSource);
-        RadioButton netResourceBtn = (RadioButton)findViewById(R.id.setting_netSource);
-        if ((localResourceBtn != null) &&
-                ((localResourceBtn.isFocused() && (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT))
-                || (((keyCode == KeyEvent.KEYCODE_DPAD_DOWN) && (netResourceBtn.isFocused()||localResourceBtn.isFocused()))))) {
+        View settingListView = findViewById(R.id.setting_listView);
+        if ((settingListView != null) && settingListView.isFocused()
+                && ((keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) || (keyCode == KeyEvent.KEYCODE_DPAD_DOWN))) {
             homeMenuView.requestFocus();
         }
 
-        return false;
+        return false;//false：super自己处理按键事件  true：手动处理按键事件
     }
 
+    //初始化视图
     private void initView(){
         initState();
+        initBackgroundRes();//恢复设置好的背景
         initHomeMenu();
     }
 
@@ -164,6 +181,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //恢复选择的背景
+    public void initBackgroundRes() {
+        SharedHelper sharedHelper = new SharedHelper(this);
+        View mainLayout = findViewById(R.id.main_MAIN);
+        if (sharedHelper.get("backgroundRes").equals("0")) {
+            Log.e("消息", "上次设置的背景是默认背景: 高斯贝尔");
+            mainLayout.setBackgroundResource(R.drawable.global_bg);
+        } else if (sharedHelper.get("backgroundRes").equals("1")) {
+            Log.e("消息", "上次设置的背景是默认背景: 酷黑");
+            mainLayout.setBackgroundResource(R.color.black);
+        } else {
+            Log.e("消息", "背景设置发生异常，恢复为默认背景");
+            Toast.makeText(this, "背景设置发生异常，恢复为默认背景", Toast.LENGTH_SHORT).show();
+            mainLayout.setBackgroundResource(R.drawable.global_bg);
+            sharedHelper.change("backgroundRes", "0");
+        }
+    }
+
+    //导航栏
     private void initHomeMenu(){
         GridView homeMenuView = (GridView)findViewById(R.id.homeMenu);
         ArrayList<HomeMenuItem> homeMenuItems = new ArrayList<>();
@@ -190,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(curFragment.isAdded()){
                     fragmentManager.beginTransaction().show(curFragment).commit();//启动了碎片
-                   return;
+                    return;
                 }
                 fragmentManager.beginTransaction().add(R.id.homeContent, curFragment).commit();//启动了碎片
                 Log.e("消息", "启动碎片成功");
@@ -200,7 +236,14 @@ public class MainActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
-        Log.e("消息", "setAdapter");
+        Log.e("消息", "设置导航栏适配器");
         homeMenuView.setAdapter(homeMenuAdapter);
+
+        //主动模拟用户操作测试0：直接跳到设置部分
+//        homeMenuView.setSelection(3);
+//        homeMenuView.setSelected(true);
+//        int i = homeMenuView.getSelectedItemPosition();
+//        Log.e("消息", "得到" + i);
+//        homeMenuView.deferNotifyDataSetChanged();
     }
 }

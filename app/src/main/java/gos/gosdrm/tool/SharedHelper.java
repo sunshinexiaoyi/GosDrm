@@ -18,7 +18,8 @@ public class SharedHelper {
         sp = mContext.getSharedPreferences(mContext.getResources().getString(R.string.file_name), Context.MODE_PRIVATE);
         this.mContext = mContext;
         SharedPreferences.Editor editor = sp.edit();//添加频道源类型
-        editor.putString("autoResource", "0");
+        editor.putString("autoResource", "0");//加入默认视频源记录   0：网络源   1：本地源
+        editor.putString("backgroundRes", "0");//加入背景选择记录   0：高斯贝尔  1：酷黑
     }
 
     //定义一个保存数据的方法

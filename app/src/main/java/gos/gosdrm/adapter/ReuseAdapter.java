@@ -299,14 +299,22 @@ public abstract class ReuseAdapter<T> extends BaseAdapter {
         }
 
         //11、设置监听item点击
-        public Holder setItemOnClickListener(ListView listView, AdapterView.OnItemClickListener itemClick) {
-            listView.setOnItemClickListener(itemClick);
+        public Holder setItemOnClickListener(View view, AdapterView.OnItemClickListener itemClick) {
+            if (view instanceof Spinner) {
+                ((Spinner)view).setOnItemClickListener(itemClick);
+            } else if (view instanceof ListView) {
+                ((ListView)view).setOnItemClickListener(itemClick);
+            }
             return this;
         }
 
         //12、设置下拉列表选择监听
-        public Holder setItemSelectListener(Spinner spinner, AdapterView.OnItemSelectedListener itemSelected) {
-            spinner.setOnItemSelectedListener(itemSelected);
+        public Holder setItemSelectListener(View view, AdapterView.OnItemSelectedListener itemSelected) {
+            if (view instanceof Spinner) {
+                ((Spinner)view).setOnItemSelectedListener(itemSelected);
+            } else if (view instanceof ListView) {
+                ((ListView)view).setOnItemSelectedListener(itemSelected);
+            }
             return this;
         }
 

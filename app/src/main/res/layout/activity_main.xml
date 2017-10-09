@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id = "@+id/main_MAIN"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/global_bg"
@@ -14,18 +15,25 @@
         android:layout_height="60dp"
         android:baselineAligned="false"
         android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="10dp"
-        tools:layout_editor_absoluteX="0dp">
+        android:orientation="horizontal">
     <!--控制搜索框居中-->
         <View
             android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="7"
+            android:layout_height="@dimen/main_titleHeight"
+            android:layout_weight="5.7"
             android:visibility="invisible"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <!--居中标题文字-->
+        <TextView
+            android:id = "@+id/main_toolBar"
+            android:textSize="@dimen/main_title"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_titleHeight" />
 
         <!--时间-->
         <TextClock
@@ -68,7 +76,7 @@
             android:id="@+id/live_wlan"
             android:src="@drawable/live_wlan_disconnect"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/main_titleHeight"
             android:layout_weight="0.5"
             android:layout_marginRight="55dp"/>
     </LinearLayout>
@@ -86,12 +94,13 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/live_toolbar"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintVertical_bias="0.0"></FrameLayout>
+        app:layout_constraintVertical_bias="0.0">
+    </FrameLayout>
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/home_menu_height"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -110,8 +119,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:listSelector="@drawable/menu_chose_fm"
-                android:numColumns="4">
-            </GridView>
+                android:numColumns="4"/>
         </LinearLayout>
     </HorizontalScrollView>
 </android.support.constraint.ConstraintLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id = "@+id/setting_changeBg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/main_title"
+    android:orientation="vertical"
+    android:layout_marginLeft="55dp"
+    android:layout_marginRight="55dp"
+    android:background="@drawable/global_bg">
+
+    <RadioButton
+        android:id = "@+id/setting_autoBg"
+        android:text="高斯贝尔"
+        android:textSize="@dimen/setting_itemTitle"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:gravity="center"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+    <RadioButton
+        android:id = "@+id/setting_blackBg"
+        android:text = "酷黑"
+        android:textSize="@dimen/setting_itemTitle"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+</RadioGroup>

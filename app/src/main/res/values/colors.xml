@@ -5,7 +5,10 @@
     <color name="colorAccent">#ff4081</color>
 
     <color name="white">#ffffff</color>
+    <color name="littleBlack">#323232</color>
     <color name="black">#000000</color>
+
+    <color name="itemGreen">#18ad00</color>
 
     <color name="focusSel">#18ad00</color>
 </resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/setting_radioGroup"
+    android:layout_width = "match_parent"
+    android:layout_height = "match_parent"
+    android:orientation="vertical"
+    android:layout_marginTop="@dimen/main_title"
+    android:layout_marginLeft="55dp"
+    android:layout_marginRight="55dp"
+    android:background="@drawable/global_bg">
+    <!--网络源-->
+    <RadioButton
+        android:id = "@+id/setting_netSource"
+        android:text = "@string/setting_netSource"
+        android:textSize="@dimen/setting_itemText"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:gravity="center"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+    <!--本地源-->
+    <RadioButton
+        android:id = "@+id/setting_localSource"
+        android:text = "@string/setting_localSource"
+        android:textSize="@dimen/setting_itemText"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:gravity="center"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+</RadioGroup>
