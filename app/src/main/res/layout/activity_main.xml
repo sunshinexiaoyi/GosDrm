@@ -76,11 +76,12 @@
         <!--WLAN图标-->
         <ImageView
             android:id="@+id/live_wlan"
-            android:src="@drawable/live_wlan_disconnect"
             android:layout_width="0dp"
             android:layout_height="@dimen/main_titleHeight"
+            android:layout_marginRight="55dp"
             android:layout_weight="0.5"
-            android:layout_marginRight="55dp"/>
+            android:src="@drawable/live_wlan_disconnect"
+            android:visibility="gone" />
     </LinearLayout>
 
     <FrameLayout

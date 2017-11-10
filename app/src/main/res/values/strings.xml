@@ -19,13 +19,18 @@
     <string name="setting_changeuser">切换账户</string>
     <string name="setting_title">喜好设置</string>
     <string name="setting_autoSource">默认频道源：</string>
-    <string name="setting_localSource">本地源</string>
-    <string name="setting_netSource">网络源</string>
+    <string name="setting_vod">点播</string>
+    <string name="setting_live">直播</string>
 
     <string name="setting_item_autoSource">默认频道源</string>
+    <string name="setting_item_serverInfo">服务器设置</string>
     <string name="setting_item_theme">背景主题</string>
     <string name="setting_item_changeUser">切换账户</string>
-    <string name="setting_item_authorizationTimes">授权次数</string>
+    <string name="setting_item_import">文件导入</string>
+
+    <string name="setting_import_live">直播列表</string>
+    <string name="setting_import_vod">点播列表</string>
+    <string name="setting_import_da">DA配置</string>
 
 
     <!--关于-->

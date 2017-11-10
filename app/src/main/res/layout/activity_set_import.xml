@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id = "@+id/setting_changeBg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:background="@drawable/global_bg">
+
+    <RadioButton
+        android:id = "@+id/setting_live"
+        android:text="@string/setting_import_live"
+        android:textSize="@dimen/setting_itemTitle"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:gravity="center"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+    <RadioButton
+        android:id = "@+id/setting_vod"
+        android:text = "@string/setting_import_vod"
+        android:textSize="@dimen/setting_itemTitle"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+    <RadioButton
+        android:id = "@+id/setting_da"
+        android:text = "@string/setting_import_da"
+        android:textSize="@dimen/setting_itemTitle"
+        android:textColor="@color/white"
+        android:background="@drawable/live_channel_selector"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+
+</RadioGroup>

@@ -14,7 +14,7 @@
         <!--搜索框-->
         <TextView
             android:id="@+id/live_importNet"
-            android:text = "网络源"
+            android:text = "@string/setting_live"
             android:textSize="@dimen/live_itemText"
             android:textColor="@color/white"
             android:textStyle="bold"
@@ -27,7 +27,7 @@
             android:clickable="false" />
         <TextView
             android:id="@+id/live_importLocal"
-            android:text = "本地源"
+            android:text = "@string/setting_vod"
             android:textSize="@dimen/live_itemText"
             android:textColor="@color/white"
             android:textStyle="bold"

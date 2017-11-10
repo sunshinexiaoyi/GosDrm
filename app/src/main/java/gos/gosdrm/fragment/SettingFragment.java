@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import gos.gosdrm.R;
+import gos.gosdrm.activity.SetImportActivity;
 import gos.gosdrm.activity.SetSourceActivity;
 import gos.gosdrm.activity.SetThemeActivity;
 import gos.gosdrm.adapter.ReuseAdapter;
@@ -46,10 +47,10 @@ public class SettingFragment extends Fragment {
 
     private void init_view() {
         ArrayList<SettingItem> settingItem = new ArrayList<>();
-        settingItem.add(new SettingItem(R.string.setting_item_autoSource,R.drawable.setting_channel_resource,SetSourceActivity.class ));
-        settingItem.add(new SettingItem(R.string.setting_item_theme,R.drawable.setting_changebg, SetThemeActivity.class));
-        settingItem.add(new SettingItem(R.string.setting_item_changeUser,R.drawable.setting_changeuser,null));
-        settingItem.add(new SettingItem(R.string.setting_item_authorizationTimes,R.drawable.setting_drmcounter,null));
+        settingItem.add(new SettingItem(R.string.setting_item_autoSource,R.drawable.setting_resouce,SetSourceActivity.class ));
+        settingItem.add(new SettingItem(R.string.setting_item_theme,R.drawable.setting_theme, SetThemeActivity.class));
+        settingItem.add(new SettingItem(R.string.setting_item_changeUser,R.drawable.setting_user,null));
+        settingItem.add(new SettingItem(R.string.setting_item_import,R.drawable.setting_import, SetImportActivity.class));
 
         settingListView =view.findViewById(R.id.setting_listView);
 
@@ -75,8 +76,6 @@ public class SettingFragment extends Fragment {
 
                         if (pos == 2) {
                             changeUser();
-                        } else if (pos == 3) {
-                            drmCounter();
                         }
                     }
                 });
@@ -84,7 +83,7 @@ public class SettingFragment extends Fragment {
         };
 
         settingListView.setAdapter(settingAdapter);
-        settingListView.requestFocus();//使得切换到设置页面时焦点来到设置项上
+        //settingListView.requestFocus();//使得切换到设置页面时焦点来到设置项上
         Log.e("消息", "设置项列表初始化完成");
     }
 
@@ -97,7 +96,7 @@ public class SettingFragment extends Fragment {
 
     //授权设置
     private void drmCounter() {
-        Log.e("消息", "授权设置");
-        Toast.makeText(getActivity(), "未完成授权记录功能", Toast.LENGTH_SHORT).show();//吐司提示
+        Log.e("消息", "文件导入");
+        //Toast.makeText(getActivity(), "未完成授权记录功能", Toast.LENGTH_SHORT).show();//吐司提示
     }
 }

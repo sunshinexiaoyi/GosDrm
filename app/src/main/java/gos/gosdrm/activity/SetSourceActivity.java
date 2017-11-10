@@ -58,16 +58,14 @@ public class SetSourceActivity extends AppCompatActivity {
                     Log.e("消息", "设置网络为默认频道源");
                     Toast.makeText(SetSourceActivity.this, "设置默认频道源为网络", Toast.LENGTH_SHORT).show();
                     setSource.setSource(SetSource.NETWORK);
-                    finish();
-
                 } else if (checkId == R.id.setting_localSource) {
                     Log.e("消息", "设置本地为默认频道源");
                     Toast.makeText(SetSourceActivity.this, "设置默认频道源为本地", Toast.LENGTH_SHORT).show();
                     setSource.setSource(SetSource.LOCAL);
-                    finish();
                 }
 
                 sharedDb.setSetSource(setSource);
+                finish();
             }
         });
     }

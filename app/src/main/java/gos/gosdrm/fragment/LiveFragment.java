@@ -5,17 +5,22 @@ import gos.gosdrm.activity.MainActivity;
 import gos.gosdrm.adapter.ReuseAdapter;
 import gos.gosdrm.data.Channel;
 import gos.gosdrm.data.CustomVideoView;
-import gos.gosdrm.data.PageInfo;
-import gos.gosdrm.data.Return;
+import gos.gosdrm.data.ReturnChannel;
 import gos.gosdrm.data.SetSource;
 import gos.gosdrm.db.SharedDb;
+import gos.gosdrm.define.SystemFile;
 import gos.gosdrm.tool.HttpUtils;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -47,6 +52,7 @@ public class LiveFragment extends Fragment{
     private final String TAG = getClass().getSimpleName();
 
     //private WlanReceiver wlanReceiver;//监听WLAN状态
+    private Context context;
     private View view;
 
     private HttpUtils httpUtils = HttpUtils.getInstance();  //获取http实例
@@ -57,9 +63,8 @@ public class LiveFragment extends Fragment{
 
     private CustomVideoView mVideoView;//自定义VideoView，目前仅实现测量视频画面尺寸方法
 
-    private boolean isMediaPause = false;//播放器是否被暂停
-    private boolean isFileImport = false;//是否为文件导入
-    private Channel channel;//频道
+    private boolean isMediaPause = false;   //播放器是否被暂停
+    private Channel selectedChannel;        //选择的频道
 
     private View layout;//频道导入类型变化强迫背景更换
 
@@ -70,24 +75,16 @@ public class LiveFragment extends Fragment{
                              Bundle savedInstanceState) {
         Log.e(TAG, "进入onCreateView()方法");
         if(null != view){
-            Log.e(TAG, "view复用");
             return view;
         }
 
         view = inflater.inflate(R.layout.fragment_live,container, false);
-
+        context = getContext();
         initView();//View部分初始化
         initData();//数据部分初始化
         return view;
     }
 
-    //初始化wifi
-//    private void initWifi(){
-//        //wlanReceiver = new WlanReceiver();
-//        IntentFilter itf = new IntentFilter();
-//        itf.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);//无线状态
-//        getActivity().registerReceiver(wlanReceiver, itf);//注册广播
-//    }
 
     //初始化文件导入
     private void initImportFile(){
@@ -99,8 +96,7 @@ public class LiveFragment extends Fragment{
             public void onClick(View view) {
                 Log.e(TAG,"本地源导入");
                 layout.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//更改频道列表背景图
-                getAllChannelByFile();
-                isFileImport = true;
+                getVodAllChannel();
             }
         });
     }
@@ -115,7 +111,7 @@ public class LiveFragment extends Fragment{
             public void onClick(View view) {
                 Log.e(TAG,"网络源导入");
                 layout.setBackgroundResource(R.drawable.live_channel_bg_importnet);//更改频道列表背景图
-                getAllChannelByNet();
+                getLiveAllChannel();
             }
         });
     }
@@ -175,59 +171,33 @@ public class LiveFragment extends Fragment{
     public void setTime(View view) {
         boolean is24Hours = DateFormat.is24HourFormat(getActivity());
         if (!is24Hours) {
-            TextClock time = (TextClock) view.findViewById(R.id.live_time);
-            TextClock date = (TextClock) view.findViewById(R.id.live_date);
-            TextClock week = (TextClock) view.findViewById(R.id.live_week);
-            time.setFormat12Hour("hh:mm");//设置时间
-            date.setFormat12Hour("yyyy-MM-dd");//设置日期
-            week.setFormat12Hour("EEEE");//设置星期
-            Log.e("调整时间日期消息", "已经修正时间格式为12小时制");
+            TextClock time =  view.findViewById(R.id.live_time);
+            TextClock date =  view.findViewById(R.id.live_date);
+            TextClock week =  view.findViewById(R.id.live_week);
+            if(null != time){
+                time.setFormat12Hour("hh:mm");//设置时间
+                date.setFormat12Hour("yyyy-MM-dd");//设置日期
+                week.setFormat12Hour("EEEE");//设置星期
+                Log.e("调整时间日期消息", "已经修正时间格式为12小时制");
+            }else {
+                Log.e(TAG, "null == time");
+
+            }
         }
     }
 
-    public void getAllChannelByFile() {
+
+    public void getVodAllChannel(){
         resetChannelListView(new ArrayList<Channel>());//重置
-        channelAdapter.resetAll(importXlsFile());
+        channelAdapter.resetAll(importXlsFile(SystemFile.getLocalPath(SystemFile.vodFile)));
         MainActivity.isChannelEmpty = channelAdapter.isEmpty() ? true : false;//保存列表内容状态
     }
 
-    //设置无线检测
-//    public class WlanReceiver extends BroadcastReceiver {
-//        private NetworkInfo networkInfo;
-//        private ImageView imageView;
-//        private WifiManager wifiManager;
-//        private WifiInfo wifiInfo;
-//        private boolean isConnected = false;//防止状态改变时过早检测断开与连接
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-//
-//                networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);//获取wlan状态
-//                if (networkInfo.getState().equals(NetworkInfo.State.DISCONNECTED)) {
-//                    if (isConnected == true) {
-//                        Toast.makeText(getActivity(), "WLAN网络被断开", Toast.LENGTH_SHORT).show();//吐司wlan断开
-//                        imageView = (ImageView) view.findViewById(R.id.live_wlan);
-//                        if (imageView != null) {
-//                            imageView.setImageResource(R.drawable.live_wlan_disconnect);//改变图标状态
-//                        }
-//                    }
-//                    isConnected = false;
-//
-//                } else if (networkInfo.getState().equals(NetworkInfo.State.CONNECTED)) {
-//                    if (isConnected == false) {
-//                        wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//                        wifiInfo = wifiManager.getConnectionInfo();
-//                        Toast.makeText(getActivity(), "WLAN网络已连接：" + wifiInfo.getSSID(), Toast.LENGTH_SHORT).show();//吐司wlan断开
-//                        imageView = (ImageView) view.findViewById(R.id.live_wlan);
-//                        if (imageView != null) {
-//                            imageView.setImageResource(R.drawable.live_wlan_connected);//改变图标状态
-//                        }
-//                    }
-//                    isConnected = true;
-//                }
-//            }
-//        }
-//    }
+    public void getLiveAllChannel(){
+        resetChannelListView(new ArrayList<Channel>());//重置
+        channelAdapter.resetAll(importXlsFile(SystemFile.getLocalPath(SystemFile.liveFile)));
+        MainActivity.isChannelEmpty = channelAdapter.isEmpty() ? true : false;//保存列表内容状态
+    }
 
     private void initView(){
         initChannelView();
@@ -250,11 +220,11 @@ public class LiveFragment extends Fragment{
         switch (sharedDb.getSetSource().getSource()){
             case SetSource.NETWORK:
                 channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importnet);//强迫背景跟随
-                getAllChannelByNet();//默认从网络导入
+                getLiveAllChannel();
                 break;
             case SetSource.LOCAL:
                 channelListBg.setBackgroundResource(R.drawable.live_channel_bg_importlocal);//强迫背景跟随
-                getAllChannelByFile();//默认从文件中导入
+                getVodAllChannel();
                 break;
             default:
                 Toast.makeText(getContext(), "设置默认频道源错误", Toast.LENGTH_SHORT).show();
@@ -265,20 +235,54 @@ public class LiveFragment extends Fragment{
     //初始化播放器
     private void initVideoView() {
         mVideoView =  view.findViewById(R.id.live_videoView);
+        mVideoView.clearFocus();
         //重写播放器的错误监听以消除播放失败弹出对话框
         mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-                Toast.makeText(getContext(), "播放错误，错误码:"+i, Toast.LENGTH_SHORT).show();
-                return true;
+                String errorInfo = "";
+                switch (i){
+                    case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                        errorInfo="发生未知错误";
+                        Log.e("text", "发生未知错误");
+                        break;
+                    case MediaPlayer.MEDIA_ERROR_IO:
+                        errorInfo="文件或网络相关的IO操作错误";
+
+                        Log.e("text", "文件或网络相关的IO操作错误");
+                        break;
+                    case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                        errorInfo="比特流编码标准或文件不符合相关规范";
+
+                        Log.e("text", "比特流编码标准或文件不符合相关规范");
+                        break;
+                    case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                        errorInfo="操作超时";
+
+                        Log.e("text", "操作超时");
+                        break;
+                    case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                        errorInfo="比特流编码标准或文件符合相关规范,但媒体框架不支持该功能";
+
+                        Log.e("text", "比特流编码标准或文件符合相关规范,但媒体框架不支持该功能");
+                        break;
+                    default:
+                        errorInfo="不知道发生了什么";
+                        Log.e("text", "不知道发生了什么" );
+                        break;
+                }
+                Toast.makeText(getContext(), errorInfo, Toast.LENGTH_SHORT).show();
+                return true;//经常会碰到视频编码格式不支持的情况，若不想弹出提示框就返回true
             }
         });
-
         mVideoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int curTime = mVideoView.getCurrentPosition();//得到播放的进度
-                startFullPlay(formatUrl(channel));
+                if(null == selectedChannel){
+                    Toast.makeText(getContext(), "未选择节目", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                startFullPlay(selectedChannel.getLiveUrl());
             }
         });
     }
@@ -313,32 +317,21 @@ public class LiveFragment extends Fragment{
                  * 到达频道列表末端处理：回到顶端
                  * 缺陷未处理：但长按的话会导致来不及处理而直接调到导航栏
                  */
-                channel = channelAdapter.getItem(i);
-                if (i == (adapterView.getCount() - 1)) {
+                if (i == (adapterView.getCount())) {
                     Log.e("消息", "已经到达列表末端，返回最上端");
                     channelListView.setSelection(0);
                 }
-                if(isFileImport){
-                    startPreviewPlay(channel.getLiveUrl());
-                }else {
-                    startPreviewPlay(formatUrl(channel));
-                }
-
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
-        //点击 全屏播放
+        //点击 播放
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if(isFileImport){
-                    startFullPlay(channel.getLiveUrl());
-                }else {
-                    startFullPlay(formatUrl(channel));
-                }
-
+                selectedChannel = channelAdapter.getItem(i);
+                startPreviewPlay(selectedChannel.getLiveUrl());
             }
         });
     }
@@ -377,25 +370,44 @@ public class LiveFragment extends Fragment{
         mVideoView.start();
     }
 
+    void getAllChannelTest(){
+        OkHttpClient httpClient = new OkHttpClient();
+        Request request = new Request.Builder().url(channelRequestUrl).build();
+        Log.i(TAG,channelRequestUrl);
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(final Call call, final IOException e) {
+
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String json = response.body().string();
+                Log.i(TAG,json);
+
+            }
+        });
+    }
+
     //获取所有频道
     private void getAllChannelByNet(){
+        getAllChannelTest();
         resetChannelListView(new ArrayList<Channel>());//重置
 
-        httpUtils.get(channelRequestUrl,new HttpUtils.Back<Return<PageInfo<Channel>>>() {
+        httpUtils.get(channelRequestUrl,new HttpUtils.Back<ReturnChannel>() {
             ArrayList<Channel> channels;
             @Override
-            public void success( Return<PageInfo<Channel>> ret) {
-                isFileImport = false;
+            public void success( ReturnChannel ret) {
                 channels = ret.getBody().getItems();
                 resetChannelListView(channels);
             }
             @Override
             public void failed(Request request, IOException e) {
                 Log.e(TAG, "获取频道列表失败,错误信息："+e.getMessage());
-                if(++channelCounter < 3){
+                Toast.makeText(context, "获取频道列表失败,错误信息："+e.getMessage(), Toast.LENGTH_SHORT).show();
+                /*if(++channelCounter < 3){
                     Log.e(TAG, "重新获取频道");
-                    getAllChannelByNet();
-                }
+
+                }*/
             }
         });
         MainActivity.isChannelEmpty = channelAdapter.isEmpty();//保存列表内容状态
@@ -414,11 +426,10 @@ public class LiveFragment extends Fragment{
      * 导入文件中的节目
      * @return
      */
-    private ArrayList<Channel> importXlsFile(){
-        isFileImport = true;
+    private ArrayList<Channel> importXlsFile(String path){
         ArrayList<Channel> channels =null;
         try {
-            InputStream is = new FileInputStream("/sdcard/ec.xls");
+            InputStream is = new FileInputStream(path);
             try {
                 Workbook workbook = Workbook.getWorkbook(is);
                 int num = workbook.getNumberOfSheets();
@@ -445,7 +456,7 @@ public class LiveFragment extends Fragment{
                 e.printStackTrace();
             }
         } catch (FileNotFoundException e) {
-            Toast.makeText(getContext(), "不存在/sdcard/ec.xls文件，请传入！ ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "不存在"+path+"文件，请传入！ ", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }finally {
             return channels;

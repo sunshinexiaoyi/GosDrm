@@ -65,6 +65,7 @@ public class SetThemeActivity extends AppCompatActivity {
                 }
 
                 sharedDb.setSetTheme(setTheme);
+                finish();
             }
         });
     }

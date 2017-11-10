@@ -46,8 +46,15 @@ public class HttpUtils {
         Log.i(TAG,url);
         httpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                back.failed(call.request(),e);
+            public void onFailure(final Call call,final IOException e) {
+                handler.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        back.failed(call.request(),e);
+                    }
+                });
             }
 
             @Override

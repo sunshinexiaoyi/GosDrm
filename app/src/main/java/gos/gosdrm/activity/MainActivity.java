@@ -5,16 +5,24 @@ import gos.gosdrm.data.HomeMenuItem;
 import gos.gosdrm.data.SetSource;
 import gos.gosdrm.data.SetTheme;
 import gos.gosdrm.db.SharedDb;
+import gos.gosdrm.define.SystemFile;
 import gos.gosdrm.fragment.AboutFragment;
 import gos.gosdrm.fragment.HomeFragment;
 import gos.gosdrm.fragment.LiveFragment;
 import gos.gosdrm.fragment.SettingFragment;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,9 +32,15 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private String TAG = getClass().getCanonicalName();
     private FragmentManager fragmentManager;
 
     private ReuseAdapter<HomeMenuItem> homeMenuAdapter;
@@ -45,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private long backTimeCur = 0;   //当前返回键的时间
 
     private long backInterval = 3000;//2次按返回键的间隔
+
+    private final int codePermissionRead = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -258,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 fragmentManager.beginTransaction().add(R.id.homeContent, curFragment).commit();//启动了碎片
+
                 Log.e("消息", "启动碎片成功");
             }
 
@@ -275,4 +292,5 @@ public class MainActivity extends AppCompatActivity {
 //        Log.e("消息", "得到" + i);
 //        homeMenuView.deferNotifyDataSetChanged();
     }
+
 }

@@ -5,10 +5,10 @@ package gos.gosdrm.define;
  */
 
 public interface PlayerUrl {
-    String channelRequestUrl = "http://192.168.1.84:8090/ottserver/IPLiveInfo/getAllChannel?clientId=boss00042&pageSize=20&pageNumber=1";
+     String channelRequestUrl = "http://192.168.1.84:8090/ottserver/IPLiveInfo/getAllChannel?clientId=boss00042&pageSize=20&pageNumber=1";
 
     //测试 mpd地址
-    String[] mpdUrl = new String[]{
+     String[] mpdUrl = new String[]{
             "http://192.168.1.109:8091/vod/dpQWU5Hh/dpQWU5Hh.mpd" ,
             "http://192.168.1.109:8091/vod/ubUK7aMf/ubUK7aMf.mpd" ,
             "http://192.168.1.109:8091/vod/b2LRsrUr/b2LRsrUr.mpd" ,
@@ -20,5 +20,10 @@ public interface PlayerUrl {
             "http://192.168.1.109:8091/vod/8fNeKVRi/8fNeKVRi.mpd" ,
             "http://192.168.1.109:8091/vod/ehXtPpcW/ehXtPpcW.mpd"
     } ;
+
+    String[] hlsUrl = new String[]{
+            "http://192.168.1.109:1028/static_hls/out/langyb_encrypt/program.m3u8"
+
+    };
 
 }

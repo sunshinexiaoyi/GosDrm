@@ -10,7 +10,7 @@
     <!--网络源-->
     <RadioButton
         android:id = "@+id/setting_netSource"
-        android:text = "@string/setting_netSource"
+        android:text = "@string/setting_live"
         android:textSize="@dimen/setting_itemText"
         android:textColor="@color/white"
         android:background="@drawable/live_channel_selector"
@@ -20,7 +20,7 @@
     <!--本地源-->
     <RadioButton
         android:id = "@+id/setting_localSource"
-        android:text = "@string/setting_localSource"
+        android:text = "@string/setting_vod"
         android:textSize="@dimen/setting_itemText"
         android:textColor="@color/white"
         android:background="@drawable/live_channel_selector"
